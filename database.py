@@ -35,7 +35,8 @@ def connect(database = DATABASE_NAME):
     then it will connect to the PostgreSQL server without connecting to a databse.
     
     Returns the database connection object and the database cursor object."""
-
+    global connection, cur
+    
     try:
         # read connection parameters
         params = config()
@@ -112,3 +113,5 @@ def create_database():
         connection.close()
         return "Database created successfully."
     
+  
+        

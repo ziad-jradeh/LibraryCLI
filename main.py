@@ -27,7 +27,6 @@ def del_database(none: Optional[str] = typer.Argument(None)):
         typer.secho("Database Deleted!")
         typer.secho("You can now use the command \"start\" to make a new database.")
 
-
-
+    
 if __name__ == "__main__":
     app()
