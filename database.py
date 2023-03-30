@@ -1,4 +1,4 @@
-from flask_migrate import current
+
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from configparser import ConfigParser
