@@ -1,3 +1,4 @@
+from flask_migrate import current
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from configparser import ConfigParser
@@ -9,6 +10,8 @@ database_path = os.path.join(dir_path, 'server.ini')
 
 DATABASE_NAME = 'librarycli'
 
+global connection, cur
+connection, cur = None, None
 
 def config(filename=database_path, section='postgresql'):
     # create a parser
