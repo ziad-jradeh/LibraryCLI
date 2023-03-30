@@ -5,12 +5,10 @@ from configparser import ConfigParser
 import os 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-database_path = os.path.join(dir_path, 'database.ini')
+database_path = os.path.join(dir_path, 'server.ini')
 
 DATABASE_NAME = 'librarycli'
 
-connection = None
-cur = None
 
 def config(filename=database_path, section='postgresql'):
     # create a parser
@@ -30,11 +28,15 @@ def config(filename=database_path, section='postgresql'):
 
 
 def connect(database = DATABASE_NAME):
-    """ Connect to the PostgreSQL database server """
-    global connection, cur
+    """ Connect to the PostgreSQL database. If database argument is an empty string,
+    then it will connect to the PostgreSQL server without connecting to a databse.
+    
+    Returns the database connection object and the database cursor object."""
+
     try:
         # read connection parameters
         params = config()
+        # add database to the connection parameters dictionary
         params["database"] = database
         # connect to the PostgreSQL server
         connection = psycopg2.connect(**params)
@@ -46,10 +48,10 @@ def connect(database = DATABASE_NAME):
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
-        
         return [connection, cur]
     
 def drop_database():
+    '''A function to drop/delete the database. Returns True if successful, False otherwise.'''
     try:
         # Connect to the PostgreSQL server without connecting to a database
         [connection, cur] = connect("")
@@ -63,18 +65,18 @@ def drop_database():
         return False
     
 def database_exists():
-    # Connect to the PostgreSQL server without connecting to a database
-    [conn, c] = connect("")
-    
+    '''A function that returns True if the database exists and False otherwise.'''
     try:
+        # Connect to the PostgreSQL server without connecting to a database
+        [conn, c] = connect("")
         # Check if the database exists
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         c.execute(f"SELECT datname FROM pg_database;")
 
-        list_database = c.fetchall()
+        db_list = c.fetchall()
         c.close()
         conn.close()
-        if (DATABASE_NAME.lower(),) in list_database:
+        if (DATABASE_NAME.lower(),) in db_list:
             return True
         else:
             return False
@@ -83,6 +85,7 @@ def database_exists():
 
 
 def create_database():
+    '''A function that creates the database if it doesn\'t already exist.'''
     if database_exists():
         return "Database already exists."
     else:
@@ -96,6 +99,7 @@ def create_database():
         [connection, cur] = connect(DATABASE_NAME)
         # Create the tables
         cur.execute(open("SQL/create_tables.sql", "r").read())
+        
         # Ask the user if they want to load a sample database
         prompt = input("An empty database has been created. Would you like to load sample database? [y/n]: ")
         if prompt.lower() == "y":
