@@ -13,14 +13,14 @@ app = typer.Typer()
 
 @app.command()
 def start(none: Optional[str] = typer.Argument(None)):
-    create_database()
+    typer.secho(create_database())
     typer.secho(f'''Welcome to Library CLI!\nUse command '--help' to see the possible commands''', fg=typer.colors.GREEN)
 
 
 @app.command("del_database")
 def del_database(none: Optional[str] = typer.Argument(None)):
-    drop_database()
-    typer.secho("Database deleted.")
+    if drop_database():
+        typer.secho("Database Deleted!")
 
 if __name__ == "__main__":
     app()

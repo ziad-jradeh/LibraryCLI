@@ -50,47 +50,58 @@ def connect(database = DATABASE_NAME):
         return [connection, cur]
     
 def drop_database():
-    [connection, cur] = connect("")
-    cur.execute(f"DROP DATABASE IF EXISTS {DATABASE_NAME}")
-    cur.close()
-    connection.close()
-    
-    
-def database_exists(conn, c):
     try:
+        # Connect to the PostgreSQL server without connecting to a database
+        [connection, cur] = connect("")
+        # Drop/delete the database
+        cur.execute(f"DROP DATABASE IF EXISTS {DATABASE_NAME} WITH (FORCE)")
+        cur.close()
+        connection.close()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+    
+def database_exists():
+    # Connect to the PostgreSQL server without connecting to a database
+    [conn, c] = connect("")
+    
+    try:
+        # Check if the database exists
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         c.execute(f"SELECT datname FROM pg_database;")
 
         list_database = c.fetchall()
+        c.close()
+        conn.close()
         if (DATABASE_NAME.lower(),) in list_database:
             return True
-        return False
+        else:
+            return False
     except:
         return False
 
 
 def create_database():
-    
-    global connection, cur
-    [conn, c] = connect("")
-    
-    if database_exists(conn, c):
-        c.close()
-        conn.close()
-        print("Database already exists.")
+    if database_exists():
+        return "Database already exists."
     else:
-        c.execute(f"CREATE DATABASE {DATABASE_NAME}")
-        c.close()
-        conn.close()
+        # Connect to the PostgreSQL Server without a database, to create a new database.
+        [connection, cur] = connect("")
+        cur.execute(f"CREATE DATABASE {DATABASE_NAME}")
+        cur.close()
+        connection.close()
+        
+        #Connect to the new database
         [connection, cur] = connect(DATABASE_NAME)
+        # Create the tables
         cur.execute(open("SQL/create_tables.sql", "r").read())
+        # Ask the user if they want to load a sample database
         prompt = input("An empty database has been created. Would you like to load sample database? [y/n]: ")
         if prompt.lower() == "y":
             cur.execute(open("SQL/insert_sample_db.sql", "r").read())
         connection.commit()
         cur.close()
         connection.close()
-        print("Database created successfully.")
-    
-    return connect(DATABASE_NAME)
+        return "Database created successfully."
     
