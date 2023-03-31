@@ -27,6 +27,65 @@ def del_database(none: Optional[str] = typer.Argument(None)):
         typer.secho("Database Deleted!")
         typer.secho("You can now use the command \"start\" to make a new database.")
 
+
+@app.command("search_by_name")
+def search_by_name(name:str):
+   
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        table.add_column("book_id", style="dim", width=10)
+        table.add_column("book_title", style="dim", min_width=10, justify=True)
+        table.add_column("total_pages", style="dim", width=5)
+        table.add_column("genre_name", style="dim", min_width=10, justify=True)
+        table.add_column("author_name", style="dim", min_width=10, justify=True)
+        table.add_column("Availability", style="dim", width=15)
+        
+        print(f"I am looking for {name}... That what we have for you:")
+        rows = search_by_name_func(name)
+
+        for row in rows:
+            table.add_row(*list(row))
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+            cur.close()
+            connection.close()
+            print('Database connection closed.')
+
+@app.command("search_by_author")
+def search_by_author(name:str):
+   
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        table.add_column("book_id", style="dim", width=10)
+        table.add_column("book_title", style="dim", min_width=10, justify=True)
+        table.add_column("total_pages", style="dim", width=10)
+        table.add_column("genre_name", style="dim", min_width=10, justify=True)
+        table.add_column("author_name", style="dim", min_width=10, justify=True)
+        table.add_column("Availability", style="dim", width=15)
+        
+        print(f"I am looking for {name}... That what we have for you:")
+        rows = search_by_author_func(name)
+
+        for row in rows:
+            table.add_row(*list(row))
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+            cur.close()
+            connection.close()
+            print('Database connection closed.')
+
+    
+    
     
 if __name__ == "__main__":
     app()
