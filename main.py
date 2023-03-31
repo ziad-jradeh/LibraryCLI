@@ -76,6 +76,34 @@ def sign_in(username: str, password:str):
         
     if conn is not None:
         conn.close()
+@app.command("add_book")
+def add_book():
+    typer.echo(f"Please provide book details!")
+    try:   
+         cur = conn.cursor()
+         title = input ("Title: ")
+         author = (input ("Author: "))
+         pages = input ("No. of pages: ")
+         genre = (input ("Genre: "))
+         quantity= int(input ("Quantity: "))
+         select_query = f"""select number_copy from books where book_title = '{title}'and author = '{author}' """
+         cur.execute(select_query)
+         copy_1 = cur.fetchone()      
+    except(Exception, psycopg2.DatabaseError):
+            print("Error")
+    else:
+        if copy_1 is not None:
+            updated_quantity = copy_1[0] + quantity
+            update_query = f"""update books set number_copy = '{updated_quantity}'  where book_title = '{title}' and author = '{author}' """
+            cur.execute(update_query)
+            typer.echo(f"\033[1;32m Number of book copy successfully updated!")	
+        else:
+            insert_query = f""" INSERT INTO books (book_title,author,genre,Total_pages,number_copy) VALUES ('{title}','{author}','{genre}','{pages}','{quantity}')"""
+            cur.execute(insert_query)
+            typer.echo(f"\033[1;32m The book is successfully added!")
+
+        cur.close()
+        conn.commit()
 # Example function for tables, you can add more columns/row.
 @app.command("display_table")
 def display_table():
