@@ -131,6 +131,25 @@ def search_by_name_func(name):
     WHERE b.book_title ILIKE '%{name}%'
         """)
         return cur.fetchall()
+
+def search_by_author_func(name):
+    
+                 
+        cur.execute(f"""SELECT Cast(book_id As Varchar), b.book_title, CAST(total_pages as Varchar) , g.genre_name, a.author_name,
+    CASE 
+    WHEN (b.number_copy > ((SELECT COUNT(*) FROM borrowing WHERE book_id=b.book_id) 
+                            - (SELECT COUNT(*) FROM returnings WHERE book_id=b.book_id))) 
+		  THEN 'True'
+
+    ELSE 'False'
+
+    END AS Availability
+    FROM books b
+    LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+    LEFT JOIN authors AS a ON b.author_id = a.author_id
+    WHERE a.author_name ILIKE '%{name}%'
+        """)
+        return cur.fetchall()
         
   
     
