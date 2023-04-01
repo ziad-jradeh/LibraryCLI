@@ -235,6 +235,35 @@ def most_read_books(genre:str):
             print('Database connection closed.')
 
 
+@app.command("recently_added")
+def recently_added(genre:Optional[str] = typer.Argument(None)):
+   
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        table.add_column("book_id", style="dim", width=10)
+        table.add_column("book_title", style="dim", min_width=10, justify=True)
+        table.add_column("author_name", style="dim", min_width=10, justify=True)
+        table.add_column("# Pages", style="dim", min_width=10, justify=True)
+        table.add_column("genre_name", style="dim", min_width=10, justify=True)
+        table.add_column("added_by", style="dim", min_width=10, justify=True)
+        table.add_column("vailabilty", style="dim", min_width=10, justify=True)
+        print(f"I am looking for {genre}... That what we have for you:")
+        #this string just for test
+        rows = recently_added_func(genre)
+
+        for row in rows:
+            table.add_row(*list(row))
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+            cur.close()
+            connection.close()
+            print('Database connection closed.')
+
     
     
 if __name__ == "__main__":

@@ -265,4 +265,45 @@ def book_added_record(books_id, users_id):
                 INSERT INTO added_book (book_id, user_id, added_date)
                 VALUES ({books_id}, {users_id}, '{date.today()}')
                 ''')
+def recently_added_func(genre='%'):
+    #how to create as default all genres? 
+    if genre is not None:          
+        cur.execute(f"""SELECT Cast(br.book_id As Varchar), b.book_title, a.author_name,Cast(b.total_pages As Varchar) , g.genre_name,u.user_name,
+            CASE 
+            WHEN (b.number_copy > ((SELECT COUNT(*) FROM borrowing WHERE book_id=br.book_id) 
+                                    - (SELECT COUNT(*) FROM returnings WHERE book_id=br.book_id))) 
+                THEN 'True'
+
+            ELSE 'False'
+
+            END AS Availability
+            FROM added_book AS br
+            LEFT JOIN books AS b ON br.book_id = b.book_id
+            LEFT JOIN authors AS a ON b.author_id = a.author_id
+            LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+            LEFT JOIN public.user AS u ON br.user_id = u.user_id
+            WHERE g.genre_name LIKE '%{genre}%'
+            GROUP BY br.book_id,b.book_title, a.author_name,b.total_pages, g.genre_name,u.user_name,b.number_copy,br.added_date
+            order by br.added_date desc
+        """)
+    else:
+       cur.execute(f"""SELECT Cast(br.book_id As Varchar), b.book_title, a.author_name,Cast(b.total_pages As Varchar) , g.genre_name,u.user_name,
+            CASE 
+            WHEN (b.number_copy > ((SELECT COUNT(*) FROM borrowing WHERE book_id=br.book_id) 
+                                    - (SELECT COUNT(*) FROM returnings WHERE book_id=br.book_id))) 
+                THEN 'True'
+
+            ELSE 'False'
+
+            END AS Availability
+            FROM added_book AS br
+            LEFT JOIN books AS b ON br.book_id = b.book_id
+            LEFT JOIN authors AS a ON b.author_id = a.author_id
+            LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+            LEFT JOIN public.user AS u ON br.user_id = u.user_id
+            GROUP BY br.book_id,b.book_title, a.author_name,b.total_pages, g.genre_name,u.user_name,b.number_copy,br.added_date
+            order by br.added_date desc
+        """)
+    return cur.fetchmany(5)
+
 
