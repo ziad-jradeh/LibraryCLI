@@ -17,6 +17,33 @@ def start(none: Optional[str] = typer.Argument(None)):
     typer.secho(create_database())
     typer.secho(f'''Welcome to Library CLI!\nUse command '--help' to see the possible commands''', fg=typer.colors.GREEN)
 
+@app.command("sign_up")
+def sign_up(username: str, password:str):
+    # TODO: Add user with name {username} and {password} to database table
+    [connection, cur] = connect()
+    check = not None
+    while check:
+        try:
+                
+                check = sign_up_func(username,password)
+                if check is not None:
+                      raise ValueError
+        except ValueError:
+                print("\033[1;31m The user name is occupied ")
+                username = input('\033[1;31m Enter another user name ')
+                password = input('\033[1;31m Enter password ')
+                
+        except (Exception, psycopg2.DatabaseError):
+             print("\033[1;31m Error data base connection")
+             break
+        else:
+           
+            typer.echo("\033[1;32m Congrats! you are registered!")
+            break      
+        
+    if connection is not None:
+        connection.close()
+        print('Database connection closed.')
 
 ### For testing purposes, can be removed later
 @app.command("del_database")
