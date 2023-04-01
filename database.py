@@ -152,7 +152,7 @@ def search_by_author_func(name):
         return cur.fetchall()
 
 def most_read_books_func(genre):
-    #how to create as default all genres? genre= '*'?
+    #how to create as default all genres? 
                  
         cur.execute(f"""SELECT Cast(br.book_id As Varchar), b.book_title, a.author_name, g.genre_name, Cast(COUNT(*) As Varchar) 
 FROM borrowing AS br
