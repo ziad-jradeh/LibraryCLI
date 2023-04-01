@@ -19,6 +19,34 @@ def start(none: Optional[str] = typer.Argument(None)):
     typer.secho(f'''Welcome to Library CLI!\nUse command '--help' to see the possible commands''', fg=typer.colors.GREEN)
 
 
+@app.command("sign_up")
+def sign_up(username: str, password:str):
+    # TODO: Add user with name {username} and {password} to database table
+    [connection, cur] = connect()
+    check = not None
+    while check:
+        try:
+             check = sign_up_func(username,password)
+             if check is not None:
+                raise ValueError
+        except ValueError:
+                print("\033[1;31m The user name is occupied ")
+                username = input('\033[1;31m Enter another user name ')
+                password = input('\033[1;31m Enter password ')
+
+                
+        except (Exception, psycopg2.DatabaseError):
+             print("\033[1;31m Error data base connection")
+             break
+        else:
+           
+            typer.echo("\033[1;32m Congrats! you are registered!")
+            break      
+        
+    if connection is not None:
+        connection.close()
+        print('Database connection closed.')
+
 ### For testing purposes, can be removed later
 @app.command("del_database")
 def del_database(none: Optional[str] = typer.Argument(None)):
@@ -147,9 +175,38 @@ def add_book():
     # user_id = 1
     # book_added_record(book_id, user_id)
     
-    
     cur.close()
     connection.close()
+
+@app.command("most_read_books")
+def most_read_books(genre:str):
+   
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        table.add_column("book_id", style="dim", width=10)
+        table.add_column("book_title", style="dim", min_width=10, justify=True)
+        table.add_column("author_name", style="dim", min_width=10, justify=True)
+        table.add_column("genre_name", style="dim", min_width=10, justify=True)
+        table.add_column("count", style="dim", width=15)
+        
+        print(f"I am looking for {genre}... That what we have for you:")
+        #this string just for test
+        rows = most_read_books_func(genre)
+
+        for row in rows:
+            table.add_row(*list(row))
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+            cur.close()
+            connection.close()
+            print('Database connection closed.')
+
+
     
     
 if __name__ == "__main__":

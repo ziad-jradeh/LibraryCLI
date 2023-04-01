@@ -39,6 +39,7 @@ VALUES
 
 INSERT INTO books (book_title, total_pages, number_copy, genre_id, author_id)
 VALUES
+
   ('To Kill a Mockingbird', 281, 10, 1, 1),
   ('The Great Gatsby', 180, 8, 1, 2),
   ('1984', 328, 12, 2, 3),
@@ -70,3 +71,27 @@ VALUES
   ('The Bell Jar', 288, 7, 1, 22),
   ('Slaughterhouse-Five', 215, 9, 1, 23),
   ('Cat''s Cradle', 287, 6, 6, 23);
+
+iNSERT INTO public."user" (user_name, user_password) VALUES ('Elen', '123');
+iNSERT INTO public."user" (user_name, user_password) VALUES ('Thom', '1');
+iNSERT INTO public."user" (user_name, user_password) VALUES ('Mary', '2');
+
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2020-01-01', 1, 2);
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2022-02-04', 1, 5);
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2022-02-04', 2, 7);
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2022-02-04', 2, 9);
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2022-02-04', 3, 11);
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2022-02-04', 3, 12);
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2022-01-01', 2, 2);
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2022-01-01', 2, 5);
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2022-01-01', 2, 11);
+INSERT INTO public.borrowing (borrow_date, user_id, book_id) VALUES ('2022-01-01', 2, 12);
+
+
+INSERT INTO public.returnings (return_date, user_id, book_id) VALUES ('2023-01-01', 2, 2);
+INSERT INTO public.returnings (return_date, user_id, book_id) VALUES ('2023-01-01', 2, 5);
+INSERT INTO public.returnings (return_date, user_id, book_id) VALUES ('2023-01-01', 2, 11);
+INSERT INTO public.returnings (return_date, user_id, book_id) VALUES ('2023-01-01', 2, 12);
+
+  
+
