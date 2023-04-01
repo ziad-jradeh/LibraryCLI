@@ -142,14 +142,14 @@ def search_by_author(name:str):
 
 @app.command("add_book")
 def add_book():
-    user_name = sign_in()
+    
     # Check if database already exists
     if not database_exists():
         print("Database is not created yet, run the command \"start\" to make a new database.")
         return
     
     ### TODO: Check if user is logged in
-    
+    user_name = sign_in()
     # Start a connection to the database
     [connection, cur] = connect()
     
