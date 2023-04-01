@@ -112,6 +112,17 @@ def create_database():
         cur.close()
         connection.close()
         return "Database created successfully."
+def sign_up_func(user_name, password):
+    checking_query = f""" select user_name from public.user where user_name = '{user_name}'"""
+    cur.execute(checking_query)
+    check = cur.fetchone()
+    if check is not None:
+         pass
+    else:
+         postgres_insert_query = f""" INSERT INTO public.user (user_name,user_password)  VALUES ('{user_name}','{password}')"""
+         cur.execute(postgres_insert_query)
+         cur.close()
+    return check     
     
 def search_by_name_func(name):
     
@@ -150,7 +161,6 @@ def search_by_author_func(name):
     WHERE a.author_name ILIKE '%{name}%'
         """)
         return cur.fetchall()
-
 def most_read_books_func(genre= '%'):
     #how to create as default all genres? 
                  
@@ -164,6 +174,7 @@ GROUP BY br.book_id,b.book_title, a.author_name, g.genre_name
 ORDER BY COUNT(*) DESC
         """)
         return cur.fetchmany(10)
+
         
   
     
