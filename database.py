@@ -2,7 +2,7 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from configparser import ConfigParser
-from datetime import datetime
+from datetime import date
 
 import os 
 
@@ -125,6 +125,11 @@ def sign_up_func(user_name, password):
          cur.execute(postgres_insert_query)
          cur.close()
     return check     
+def sign_in_func(user_name, password):
+    checking_query = f""" select user_name from public.user where user_name = '{user_name}'and user_password ='{password}'"""
+    cur.execute(checking_query)
+    check = cur.fetchone()
+    return check     
     
 def search_by_name_func(name):
     
@@ -179,7 +184,13 @@ ORDER BY COUNT(*) DESC
 
         
   
-    
+def get_user_id(user_name):
+    cur.execute(f'''
+                    SELECT user_id FROM public.user
+                    WHERE user_name = '{user_name}'
+                ''')
+    id = cur.fetchone()
+    return id[0]
 def get_author_id(author_name):
     cur.execute(f'''
                     SELECT author_id FROM authors
@@ -237,7 +248,7 @@ def add_new_book(book_title, author_id, genre_id, pages):
                 VALUES ('{book_title}', {author_id}, {genre_id}, {pages}, 1)
                 RETURNING book_id
                 ''')
-    return cur.fetchone()
+    return cur.fetchone()[0]
 
 def increase_book_copies(book_id):
     cur.execute(f'''
@@ -248,9 +259,10 @@ def increase_book_copies(book_id):
                 ''')
     return cur.fetchone()
 
-def book_added_record(book_id, user_id):
+def book_added_record(books_id, users_id):
+    
     cur.execute(f'''
-                INSERT INTO added_books (book_id, user_id, added_date)
-                VALUES ('{book_id}', '{user_id}', {datetime.now()})
+                INSERT INTO added_book (book_id, user_id, added_date)
+                VALUES ({books_id}, {users_id}, '{date.today()}')
                 ''')
 
