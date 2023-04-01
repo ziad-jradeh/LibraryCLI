@@ -84,6 +84,28 @@ def search_by_author(name:str):
             connection.close()
             print('Database connection closed.')
 
+@app.command("most_favorite_books")
+def most_favorite_books():
+   
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        table.add_column("book_id", style="dim", width=10)
+        table.add_column("book_title", style="dim", min_width=10, justify=True)
+        table.add_column("author_name", style="dim", width=10)
+        table.add_column("genre_name", style="dim", min_width=10, justify=True)
+        table.add_column("count", style="dim", min_width=10, justify=True)
+      
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+            cur.close()
+            connection.close()
+            print('Database connection closed.')
+
     
     
     

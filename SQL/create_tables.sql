@@ -77,7 +77,7 @@ CREATE TABLE public.borrowing (
 
 
 
-CREATE TABLE public.returning (
+CREATE TABLE public.returnings (
 	"return_id" serial NOT NULL,
 	"return_date" DATE NOT NULL,
 	"user_id" integer NOT NULL,

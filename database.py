@@ -150,6 +150,20 @@ def search_by_author_func(name):
     WHERE a.author_name ILIKE '%{name}%'
         """)
         return cur.fetchall()
+
+def most_favorite_books():
+
+    cur.execute(f"""select borrowing.book_id, 
+        books.book_title, authors.author_name, 
+        genres.genre_name, count(borrowing.book_id) from borrowing 
+        LEFT JOIN books on borrowing.book_id=books.book_id
+        LEFT JOIN authors on authors.author_id=books.author_id
+        LEFT JOIN genres on genres.genre_id = books.genre_id
+        GROUP BY borrowing.book_id, books.book_title,authors.author_name,genres.genre_name
+        ORDER BY  count DESC Limit 10  
+        """)
+    
+    return cur.fetchall()
         
   
     
