@@ -77,12 +77,12 @@ CREATE TABLE public.borrowing (
 
 
 
-CREATE TABLE public.returning (
+CREATE TABLE public.returnings (
 	"return_id" serial NOT NULL,
 	"return_date" DATE NOT NULL,
 	"user_id" integer NOT NULL,
 	"book_id" integer NOT NULL,
-	CONSTRAINT "returning_pk" PRIMARY KEY ("return_id")
+	CONSTRAINT "returnings_pk" PRIMARY KEY ("return_id")
 ) WITH (
   OIDS=FALSE
 );
@@ -116,8 +116,8 @@ ALTER TABLE "favorite" ADD CONSTRAINT "favorite_fk1" FOREIGN KEY ("book_id") REF
 ALTER TABLE "borrowing" ADD CONSTRAINT "borrowing_fk0" FOREIGN KEY ("user_id") REFERENCES "user"("user_id");
 ALTER TABLE "borrowing" ADD CONSTRAINT "borrowing_fk1" FOREIGN KEY ("book_id") REFERENCES "books"("book_id");
 
-ALTER TABLE "returning" ADD CONSTRAINT "returning_fk0" FOREIGN KEY ("user_id") REFERENCES "user"("user_id");
-ALTER TABLE "returning" ADD CONSTRAINT "returning_fk1" FOREIGN KEY ("book_id") REFERENCES "books"("book_id");
+ALTER TABLE "returnings" ADD CONSTRAINT "returnings_fk0" FOREIGN KEY ("user_id") REFERENCES "user"("user_id");
+ALTER TABLE "returnings" ADD CONSTRAINT "returnings_fk1" FOREIGN KEY ("book_id") REFERENCES "books"("book_id");
 
 ALTER TABLE "added_book" ADD CONSTRAINT "added_book_fk0" FOREIGN KEY ("book_id") REFERENCES "books"("book_id");
 ALTER TABLE "added_book" ADD CONSTRAINT "added_book_fk1" FOREIGN KEY ("user_id") REFERENCES "user"("user_id");

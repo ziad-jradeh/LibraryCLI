@@ -150,6 +150,20 @@ def search_by_author_func(name):
     WHERE a.author_name ILIKE '%{name}%'
         """)
         return cur.fetchall()
+
+def most_read_books_func(genre= '%'):
+    #how to create as default all genres? 
+                 
+        cur.execute(f"""SELECT Cast(br.book_id As Varchar), b.book_title, a.author_name, g.genre_name, Cast(COUNT(*) As Varchar) 
+FROM borrowing AS br
+LEFT JOIN books AS b ON br.book_id = b.book_id
+LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+LEFT JOIN authors AS a ON b.author_id = a.author_id
+WHERE g.genre_name LIKE '%{genre}%'
+GROUP BY br.book_id,b.book_title, a.author_name, g.genre_name
+ORDER BY COUNT(*) DESC
+        """)
+        return cur.fetchmany(10)
         
   
     
