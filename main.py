@@ -1,3 +1,4 @@
+from tkinter import E
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -84,7 +85,71 @@ def search_by_author(name:str):
             connection.close()
             print('Database connection closed.')
 
+
+@app.command("add_book")
+def add_book():
     
+    # Check if database already exists
+    if not database_exists():
+        print("Database is not created yet, run the command \"start\" to make a new database.")
+        return
+    
+    ### TODO: Check if user is logged in
+    
+    # Start a connection to the database
+    [connection, cur] = connect()
+    
+    # A loop for user inputs
+    while True:
+        try:
+            book_title = input("Name: ")
+            if book_title == '':
+                typer.secho("Please enter a book title. Cannot be empty!", fg=typer.colors.RED)
+                continue
+            author_name = input("Author: ")
+            if author_name == '':
+                typer.secho("Please enter an author name. Cannot be empty!", fg=typer.colors.RED)
+                continue
+            pages = int(input("# Pages: "))
+            if pages <= 0:
+                typer.secho("Invalid input. Try again", fg=typer.colors.RED)
+                continue
+            genre_name = input("Genre: ")
+            if genre_name == '':
+                typer.secho("Please enter genre name. Cannot be empty!", fg=typer.colors.RED)
+                continue
+            break
+        except:
+            typer.secho("Invalid input. Try again", fg=typer.colors.RED)
+            continue
+            
+    # Try to find the author, if not found add a new author
+    author_id = get_author_id(author_name)
+    if author_id is None:
+        author_id = add_author(author_name)
+    
+    
+    genre_id = get_genre_id(genre_name)
+    if genre_id is None:
+        genre_id = add_genre(genre_name)
+    
+    
+    book_id = get_book_id(book_title, author_id)
+    if book_id is None:
+        book_id = add_new_book(book_title, author_id, genre_id, pages)
+        typer.secho(f'''A new book has been added!''', fg=typer.colors.GREEN)
+    else: 
+        book_id = increase_book_copies(book_id)
+        typer.secho(f'''The book already exists! The number of copies has been increased by one!''', fg=typer.colors.GREEN)
+    
+    
+    ### TODO: Add the book added record
+    # user_id = 1
+    # book_added_record(book_id, user_id)
+    
+    
+    cur.close()
+    connection.close()
     
     
 if __name__ == "__main__":

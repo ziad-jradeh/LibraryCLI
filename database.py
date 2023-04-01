@@ -2,6 +2,7 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from configparser import ConfigParser
+from datetime import datetime
 
 import os 
 
@@ -84,7 +85,8 @@ def database_exists():
             return True
         else:
             return False
-    except:
+    except Exception as e:
+        print(e)
         return False
 
 
@@ -153,6 +155,77 @@ def search_by_author_func(name):
         
   
     
+def get_author_id(author_name):
     
-  
-        
+    cur.execute(f'''
+                    SELECT author_id FROM authors
+                    WHERE author_name = '{author_name}'
+                ''')
+    id = cur.fetchone()
+    if id is None:
+        return None
+    else:
+        return id[0]
+
+def add_author(author_name):
+    
+    cur.execute(f'''
+                INSERT INTO authors (author_name)
+                VALUES ('{author_name}')
+                RETURNING author_id
+                ''')
+    return cur.fetchone()[0]
+
+def get_genre_id(genre_name):
+    
+    cur.execute(f'''
+                    SELECT genre_id FROM genres
+                    WHERE genre_name = '{genre_name}'
+                ''')
+    id = cur.fetchone()
+    if id is None:
+        return None
+    else:
+        return id[0]
+
+def add_genre(genre_name):
+    cur.execute(f'''
+                INSERT INTO genres (genre_name)
+                VALUES ('{genre_name}')
+                RETURNING genre_id
+                ''')
+    return cur.fetchone()[0]
+
+def get_book_id(book_title, author_id):
+    cur.execute(f'''
+                    SELECT book_id FROM books
+                    WHERE book_title = '{book_title}' AND author_id = '{author_id}'
+                ''')
+    id = cur.fetchone()
+    if id is None:
+        return None
+    else:
+        return id[0]
+
+def add_new_book(book_title, author_id, genre_id, pages):
+    cur.execute(f'''
+                INSERT INTO books (book_title, author_id, genre_id, total_pages, number_copy)
+                VALUES ('{book_title}', {author_id}, {genre_id}, {pages}, 1)
+                RETURNING book_id
+                ''')
+    return cur.fetchone()
+
+def increase_book_copies(book_id):
+    cur.execute(f'''
+                UPDATE books
+                SET number_copy = number_copy + 1
+                WHERE book_id = {book_id}
+                RETURNING book_id
+                ''')
+    return cur.fetchone()
+
+def book_added_record(book_id, user_id):
+    cur.execute(f'''
+                INSERT INTO added_books (book_id, user_id, added_date)
+                VALUES ('{book_id}', '{user_id}', {datetime.now()})
+                ''')
