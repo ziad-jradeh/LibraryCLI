@@ -161,18 +161,14 @@ def search_by_author_func(name):
     WHERE a.author_name ILIKE '%{name}%'
         """)
         return cur.fetchall()
-def sign_up_func(user_name, password):
-    checking_query = f""" select user_name from public.user where user_name = '{user_name}'"""
-    cur.execute(checking_query)
-    check = cur.fetchone()
-    if check is not None:
-         pass
-    else:
-         postgres_insert_query = f""" INSERT INTO public.user (user_name,user_password)  VALUES ('{user_name}','{password}')"""
-         cur.execute(postgres_insert_query)
-         cur.close()
-    return check     
-            
+def most_favorite_fun():
+    cur.excute(f""" select b.book_id, book_title,a.author_name,g.genre_name from books b 
+        left join favorite f on b.book_id =f.book_id 
+        left join authors a on b.book_id = a.author_id
+        left join genres g on b.book_id = g.genre_id
+    
+    """)
+    return cur.fetchall()
 
 
         

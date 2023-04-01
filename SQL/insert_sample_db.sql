@@ -37,6 +37,13 @@ VALUES
     ('Historical Fiction');
 
 
+INSERT INTO public.user (user_name, user_password)
+VALUES
+('Haftom','Haf123'),
+('ziad','ziad123'),
+('elen','elen123'),
+('osman','osman123');
+
 INSERT INTO books (book_title, total_pages, number_copy, genre_id, author_id)
 VALUES
   ('To Kill a Mockingbird', 281, 10, 1, 1),
@@ -70,3 +77,14 @@ VALUES
   ('The Bell Jar', 288, 7, 1, 22),
   ('Slaughterhouse-Five', 215, 9, 1, 23),
   ('Cat''s Cradle', 287, 6, 6, 23);
+
+  INSERT INTO favorite (user_id,book_id)
+VALUES
+    (1,2),
+    (2,2),
+    (2,3),
+    (1,3),
+    (2,4),
+    (3,2),
+    (3,2),
+    (1,4);
