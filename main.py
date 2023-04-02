@@ -202,11 +202,65 @@ def most_read_books(genre:str):
          print(error)      
     finally: 
         if connection is not None:
+<<<<<<< Updated upstream
+=======
+           cur.close()
+           connection.close()
+        print('Database connection closed.')
+
+            
+@app.command("most_read_genres")
+def most_read_genres():
+   
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        table.add_column("genre_name", style="dim", min_width=10, justify=True)
+        table.add_column("count", style="dim", width=15)
+        
+        rows = most_read_genres_func()
+
+        for row in rows:
+            table.add_row(*list(row))
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+>>>>>>> Stashed changes
             cur.close()
             connection.close()
             print('Database connection closed.')
 
+<<<<<<< Updated upstream
 
+=======
+
+@app.command("most_read_authors")
+def most_read_authors():
+   
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        table.add_column("author_name", style="dim", min_width=10, justify=True)
+        table.add_column("count", style="dim", width=15)
+        
+        rows = most_read_authors_func()
+
+        for row in rows:
+            table.add_row(*list(row))
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+            cur.close()
+            connection.close()
+            print('Database connection closed.')
+
+>>>>>>> Stashed changes
     
     
 if __name__ == "__main__":
