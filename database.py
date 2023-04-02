@@ -154,19 +154,110 @@ def search_by_author_func(name):
 def most_read_books_func(genre= '%'):
     #how to create as default all genres? 
                  
-        cur.execute(f"""SELECT Cast(br.book_id As Varchar), b.book_title, a.author_name, g.genre_name, Cast(COUNT(*) As Varchar) 
-FROM borrowing AS br
-LEFT JOIN books AS b ON br.book_id = b.book_id
+        cur.execute(f"""SELECT Cast(r.book_id As Varchar), b.book_title, a.author_name, g.genre_name, Cast(COUNT(*) As Varchar) 
+FROM read_book AS r
+LEFT JOIN books AS b ON r.book_id = b.book_id
 LEFT JOIN genres AS g ON b.genre_id = g.genre_id
 LEFT JOIN authors AS a ON b.author_id = a.author_id
 WHERE g.genre_name LIKE '%{genre}%'
-GROUP BY br.book_id,b.book_title, a.author_name, g.genre_name
-ORDER BY COUNT(*) DESC
+GROUP BY r.book_id,b.book_title, a.author_name, g.genre_name
+ORDER BY COUNT(*) DESC LIMIT 10
         """)
+<<<<<<< Updated upstream
         return cur.fetchmany(10)
         
+=======
+        return cur.fetchall()
+
+     
+>>>>>>> Stashed changes
   
     
     
+<<<<<<< Updated upstream
   
         
+=======
+    cur.execute(f'''
+                INSERT INTO authors (author_name)
+                VALUES ('{author_name}')
+                RETURNING author_id
+                ''')
+    return cur.fetchone()[0]
+
+def get_genre_id(genre_name):
+    
+    cur.execute(f'''
+                    SELECT genre_id FROM genres
+                    WHERE genre_name = '{genre_name}'
+                ''')
+    id = cur.fetchone()
+    if id is None:
+        return None
+    else:
+        return id[0]
+
+def add_genre(genre_name):
+    cur.execute(f'''
+                INSERT INTO genres (genre_name)
+                VALUES ('{genre_name}')
+                RETURNING genre_id
+                ''')
+    return cur.fetchone()[0]
+
+def get_book_id(book_title, author_id):
+    cur.execute(f'''
+                    SELECT book_id FROM books
+                    WHERE book_title = '{book_title}' AND author_id = '{author_id}'
+                ''')
+    id = cur.fetchone()
+    if id is None:
+        return None
+    else:
+        return id[0]
+
+def add_new_book(book_title, author_id, genre_id, pages):
+    cur.execute(f'''
+                INSERT INTO books (book_title, author_id, genre_id, total_pages, number_copy)
+                VALUES ('{book_title}', {author_id}, {genre_id}, {pages}, 1)
+                RETURNING book_id
+                ''')
+    return cur.fetchone()
+
+def increase_book_copies(book_id):
+    cur.execute(f'''
+                UPDATE books
+                SET number_copy = number_copy + 1
+                WHERE book_id = {book_id}
+                RETURNING book_id
+                ''')
+    return cur.fetchone()
+
+def book_added_record(book_id, user_id):
+    cur.execute(f'''
+                INSERT INTO added_books (book_id, user_id, added_date)
+                VALUES ('{book_id}', '{user_id}', {datetime.now()})
+                ''')
+
+def most_read_genres_func():
+    cur.execute(f'''SELECT  g.genre_name, Cast(COUNT(*) As Varchar) 
+                FROM read_book AS r
+                LEFT JOIN books AS b ON r.book_id = b.book_id
+                LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+                GROUP BY g.genre_name
+                ORDER BY COUNT(*) DESC LIMIT 5
+                ''')
+    return cur.fetchall()
+
+def most_read_authors():
+    cur.execute(f'''SELECT  a.author_name, Cast(COUNT(*) As Varchar) 
+                FROM read_book AS r
+                LEFT JOIN books AS b ON r.book_id = b.book_id
+                LEFT JOIN authors AS a ON b.author_id = a.author_id
+                GROUP BY a.author_name
+                ORDER BY COUNT(*) DESC LIMIT 3
+                ''')
+    return cur.fetchall()
+
+
+>>>>>>> Stashed changes

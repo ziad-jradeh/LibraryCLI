@@ -70,7 +70,7 @@ def search_by_author(name:str):
         table.add_column("Availability", style="dim", width=15)
         
         print(f"I am looking for {name}... That what we have for you:")
-        rows = search_by_author_func(name)
+        rows = search_by_author(name)
 
         for row in rows:
             table.add_row(*list(row))
@@ -86,7 +86,7 @@ def search_by_author(name:str):
 
 
 @app.command("most_read_books")
-def most_read_books(genre:str):
+def most_read_books(genre:Optional[str] = typer.Argument('%')):
    
     [connection, cur] = connect()
     try:
@@ -97,9 +97,33 @@ def most_read_books(genre:str):
         table.add_column("genre_name", style="dim", min_width=10, justify=True)
         table.add_column("count", style="dim", width=15)
         
-        print(f"I am looking for {genre}... That what we have for you:")
-        #this string just for test
+        # print(f"I am looking for {genre}... That what we have for you:")
         rows = most_read_books_func(genre)
+
+        for row in rows:
+            table.add_row(*list(row))
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+           cur.close()
+           connection.close()
+        print('Database connection closed.')
+
+            
+@app.command("most_read_genres")
+def most_read_genres_func():
+   
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        
+        table.add_column("genre_name", style="dim", min_width=10, justify=True)
+        table.add_column("count", style="dim", width=15)
+        
+        rows = most_read_genres_func()
 
         for row in rows:
             table.add_row(*list(row))
@@ -113,7 +137,36 @@ def most_read_books(genre:str):
             connection.close()
             print('Database connection closed.')
 
+<<<<<<< Updated upstream
     
+=======
+@app.command("most_read_authors")
+def most_read_authors():
+   
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        
+        table.add_column("author_name", style="dim", min_width=10, justify=True)
+        table.add_column("count", style="dim", width=15)
+        
+        rows = most_read_authors()
+
+        for row in rows:
+            table.add_row(*list(row))
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+            cur.close()
+            connection.close()
+            print('Database connection closed.')
+            
+
+
+>>>>>>> Stashed changes
     
     
 if __name__ == "__main__":
