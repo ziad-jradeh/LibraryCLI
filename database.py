@@ -288,6 +288,16 @@ def recently_added_func(genre='%'):
         """)
     
     return cur.fetchmany(5)
+def check_if_borrowed(user_id,book_id):
+    cur.execute(f""" SELECT borrow_id from borrowing  
+               WHERE book_id = {book_id} and user_id ={user_id}
+    
+    """)
+    check =cur.fetchone()
+    if check is None:
+        return None
+    else:
+     return check[0]
 def borrow_book_func(book_id):
     cur.execute(f""" SELECT number_copy from books  
                WHERE book_id = {book_id}
@@ -310,5 +320,25 @@ def decrease_book_copies(book_id):
                 WHERE book_id = {book_id}
                 RETURNING book_id
                 ''')
+def return_book_func(user_id,book_id):
+    cur.execute(f""" SELECT borrow_id from borrowing 
+               WHERE book_id = {book_id} and user_id = {user_id}
+    
+    """)
+    id=cur.fetchone()
+    if id is None:
+        return None
+    else:
+     return id[0] 
+def add_into_return_func(user_id,book_id):
+       cur.execute(f""" insert into returnings( return_date,user_id,book_id) 
+                      values('{date.today()}',{user_id},{book_id})
+    
+    """)
+def delete_from_borrowing(user_id,book_id):
+    cur.execute(f'''
+                DELETE FROM borrowing WHERE user_id ={user_id} and book_id ={book_id}
+                ''')
+    
 
 
