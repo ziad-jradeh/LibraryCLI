@@ -207,7 +207,7 @@ def add_book():
     connection.close()
 
 @app.command("most_read_books")
-def most_read_books(genre:str):
+def most_read_books(genre:Optional[str] = typer.Argument('%')):
    
     [connection, cur] = connect()
     try:
@@ -236,7 +236,7 @@ def most_read_books(genre:str):
 
 
 @app.command("recently_added")
-def recently_added(genre:Optional[str] = typer.Argument(None)):
+def recently_added(genre:Optional[str] = typer.Argument('%')):
    
     [connection, cur] = connect()
     try:
@@ -264,7 +264,44 @@ def recently_added(genre:Optional[str] = typer.Argument(None)):
             connection.close()
             print('Database connection closed.')
 
+@app.command("borrow_book")
+def borrow_book():
+     # Check if database already exists
+    if not database_exists():
+        print("Database is not created yet, run the command \"start\" to make a new database.")
+        return
     
+    ### TODO: Check if user is logged in
+    user_name = sign_in()
+    
+    # Start a connection to the database
+    [connection, cur] = connect()
+    user_id = get_user_id(user_name)
+    while True:
+        try:
+            input_id = input('please enter the book_id = ')
+            if input_id == '':
+                typer.secho("Please enter a book_id. Cannot be empty!", fg=typer.colors.RED)
+            
+            book_id = int(input_id)
+        except:
+            typer.secho("Invalid input. Try again", fg=typer.colors.RED)
+            continue
+        finally:
+         number_copy= borrow_book_func(book_id )
+         if number_copy == 0 or number_copy is None:
+            typer.secho(f"sorry book {book_id} is not available Try again", fg=typer.colors.RED)
+            continue
+         else:
+            add_into_borrow_func(user_id,book_id)
+            decrease_book_copies(book_id)
+            typer.secho(f"you borrowed book {book_id} ", fg=typer.colors.GREEN)
+            break
+    if connection is not None:
+            cur.close()
+            connection.close()
+            print('Database connection closed.')
+
     
 if __name__ == "__main__":
     app()
