@@ -18,7 +18,33 @@ def start(none: Optional[str] = typer.Argument(None)):
     typer.secho(create_database())
     typer.secho(f'''Welcome to Library CLI!\nUse command '--help' to see the possible commands''', fg=typer.colors.GREEN)
 
+def sign_in():
+    [connection, cur] = connect()
+    check = None
+    print(" Please sign in first  ")
+    username = input('Enter  user name ')
+    password = input(' Enter password ')
+    while not check:
+        try:
+            
+             check = sign_in_func(username,password)
+             if check is None:
+                raise ValueError
+        except ValueError:
+                print("\033[1;31m user name or password error!  ")
+                username = input('\033[1;31m Enter again user name ')
+                password = input('\033[1;31m Enter again password ')
+        except (Exception, psycopg2.DatabaseError):
+             print("\033[1;31m Error data base connection")
+             break
+        else:
+           
+            typer.echo(f" Congrats! you are signed in!")
 
+            break 
+    if connection is not None:
+        connection.close()
+    return username     
 @app.command("sign_up")
 def sign_up(username: str, password:str):
     # TODO: Add user with name {username} and {password} to database table
@@ -123,14 +149,14 @@ def add_book():
         return
     
     ### TODO: Check if user is logged in
-    
+    user_name = sign_in()
     # Start a connection to the database
     [connection, cur] = connect()
     
     # A loop for user inputs
     while True:
         try:
-            book_title = input("Name: ")
+            book_title = input("Name of the book: ")
             if book_title == '':
                 typer.secho("Please enter a book title. Cannot be empty!", fg=typer.colors.RED)
                 continue
@@ -166,6 +192,8 @@ def add_book():
     if book_id is None:
         book_id = add_new_book(book_title, author_id, genre_id, pages)
         typer.secho(f'''A new book has been added!''', fg=typer.colors.GREEN)
+        user_id = get_user_id(user_name)
+        book_added_record(book_id,user_id)
     else: 
         book_id = increase_book_copies(book_id)
         typer.secho(f'''The book already exists! The number of copies has been increased by one!''', fg=typer.colors.GREEN)
