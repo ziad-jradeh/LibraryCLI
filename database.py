@@ -175,11 +175,8 @@ WHERE g.genre_name LIKE '%{genre}%'
 GROUP BY br.book_id,b.book_title, a.author_name, g.genre_name
 ORDER BY COUNT(*) DESC
         """)
-        return cur.fetchmany(10)
+        return cur.fetchall()
 
-        
-  
-    
 def get_author_id(author_name):
     cur.execute(f'''
                     SELECT author_id FROM authors
@@ -192,7 +189,6 @@ def get_author_id(author_name):
         return id[0]
 
 def add_author(author_name):
-    
     cur.execute(f'''
                 INSERT INTO authors (author_name)
                 VALUES ('{author_name}')
@@ -253,4 +249,24 @@ def book_added_record(book_id, user_id):
                 INSERT INTO added_books (book_id, user_id, added_date)
                 VALUES ('{book_id}', '{user_id}', {datetime.now()})
                 ''')
+
+def most_read_genres_func():
+    cur.execute(f'''SELECT  g.genre_name, Cast(COUNT(*) As Varchar) 
+                FROM read_book AS r
+                LEFT JOIN books AS b ON r.book_id = b.book_id
+                LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+                GROUP BY g.genre_name
+                ORDER BY COUNT(*) DESC LIMIT 5
+                ''')
+    return cur.fetchall()
+
+def most_read_authors_func():
+    cur.execute(f'''SELECT  a.author_name, Cast(COUNT(*) As Varchar) 
+                FROM read_book AS r
+                LEFT JOIN books AS b ON r.book_id = b.book_id
+                LEFT JOIN authors AS a ON b.author_id = a.author_id
+                GROUP BY a.author_name
+                ORDER BY COUNT(*) DESC LIMIT 3
+                ''')
+    return cur.fetchall()
 
