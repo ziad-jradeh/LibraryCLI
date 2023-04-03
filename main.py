@@ -202,8 +202,6 @@ def most_read_books(genre:Optional[str] = typer.Argument('%')):
          print(error)      
     finally: 
         if connection is not None:
-<<<<<<< Updated upstream
-=======
            cur.close()
            connection.close()
         print('Database connection closed.')
@@ -228,14 +226,10 @@ def most_read_genres():
          print(error)      
     finally: 
         if connection is not None:
->>>>>>> Stashed changes
             cur.close()
             connection.close()
             print('Database connection closed.')
 
-<<<<<<< Updated upstream
-
-=======
 
 @app.command("most_read_authors")
 def most_read_authors():
@@ -260,7 +254,6 @@ def most_read_authors():
             connection.close()
             print('Database connection closed.')
 
->>>>>>> Stashed changes
     
     
 if __name__ == "__main__":

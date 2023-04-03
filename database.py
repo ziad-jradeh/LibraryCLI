@@ -175,16 +175,8 @@ WHERE g.genre_name LIKE '%{genre}%'
 GROUP BY br.book_id,b.book_title, a.author_name, g.genre_name
 ORDER BY COUNT(*) DESC
         """)
-<<<<<<< Updated upstream
-        return cur.fetchmany(10)
-
-        
-  
-    
-=======
         return cur.fetchall()
 
->>>>>>> Stashed changes
 def get_author_id(author_name):
     cur.execute(f'''
                     SELECT author_id FROM authors
@@ -197,10 +189,6 @@ def get_author_id(author_name):
         return id[0]
 
 def add_author(author_name):
-<<<<<<< Updated upstream
-    
-=======
->>>>>>> Stashed changes
     cur.execute(f'''
                 INSERT INTO authors (author_name)
                 VALUES ('{author_name}')
@@ -262,8 +250,6 @@ def book_added_record(book_id, user_id):
                 VALUES ('{book_id}', '{user_id}', {datetime.now()})
                 ''')
 
-<<<<<<< Updated upstream
-=======
 def most_read_genres_func():
     cur.execute(f'''SELECT  g.genre_name, Cast(COUNT(*) As Varchar) 
                 FROM read_book AS r
@@ -284,4 +270,3 @@ def most_read_authors_func():
                 ''')
     return cur.fetchall()
 
->>>>>>> Stashed changes
