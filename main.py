@@ -179,7 +179,7 @@ def add_book():
     connection.close()
 
 @app.command("most_read_books")
-def most_read_books(genre:str):
+def most_read_books(genre:Optional[str] = typer.Argument('%')):
    
     [connection, cur] = connect()
     try:
