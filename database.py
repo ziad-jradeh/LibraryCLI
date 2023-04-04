@@ -355,7 +355,17 @@ def add_into_return_func(user_id,book_id):
                       values('{date.today()}',{user_id},{book_id})
     
     """)
-
+       
+def book_exists(book_id):
+    cur.execute(f'''
+                SELECT book_id FROM books WHERE book_id = {book_id}
+                ''')
+    id = cur.fetchone()
+    if id is None:
+        return False
+    else:
+        return True
+    
 def mark_book_as_read(book_id, user_id):
     cur.execute(f'''
                 SELECT book_id FROM read_book WHERE book_id = {book_id} AND user_id = {user_id}
