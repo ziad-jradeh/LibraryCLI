@@ -286,3 +286,33 @@ def most_read_authors_func():
                 ''')
     return cur.fetchall()
 
+def book_exists(book_id):
+    cur.execute(f'''
+                SELECT book_id FROM books WHERE book_id = {book_id}
+                ''')
+    id = cur.fetchone()
+    if id is None:
+        return False
+    else:
+        return True
+
+
+def mark_book_as_read(book_id, user_id):
+    cur.execute(f'''
+                SELECT book_id FROM read_book WHERE book_id = {book_id} AND user_id = {user_id}
+                ''')
+    already_read = cur.fetchone()
+    if already_read is None:
+        cur.execute(f'''
+                INSERT INTO read_book (book_id, user_id) VALUES ({book_id}, {user_id})
+                ''')
+
+def mark_book_as_fav(book_id, user_id):
+    cur.execute(f'''
+                SELECT book_id FROM favorite WHERE book_id = {book_id} AND user_id = {user_id}
+                ''')
+    already_read = cur.fetchone()
+    if already_read is None:
+        cur.execute(f'''
+                INSERT INTO favorite (book_id, user_id) VALUES ({book_id}, {user_id})
+                ''')

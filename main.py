@@ -43,8 +43,10 @@ def sign_in():
 
             break 
     if connection is not None:
+        cur.close()
         connection.close()
     return username     
+
 @app.command("sign_up")
 def sign_up(username: str, password:str):
     # TODO: Add user with name {username} and {password} to database table
@@ -70,6 +72,7 @@ def sign_up(username: str, password:str):
             break      
         
     if connection is not None:
+        cur.close()
         connection.close()
         print('Database connection closed.')
 
@@ -148,8 +151,9 @@ def add_book():
         print("Database is not created yet, run the command \"start\" to make a new database.")
         return
     
-    ### TODO: Check if user is logged in
+    # Sign in
     user_name = sign_in()
+    
     # Start a connection to the database
     [connection, cur] = connect()
     
@@ -197,11 +201,6 @@ def add_book():
     else: 
         book_id = increase_book_copies(book_id)
         typer.secho(f'''The book already exists! The number of copies has been increased by one!''', fg=typer.colors.GREEN)
-    
-    
-    ### TODO: Add the book added record
-    # user_id = 1
-    # book_added_record(book_id, user_id)
     
     cur.close()
     connection.close()
@@ -282,7 +281,51 @@ def most_read_authors():
             connection.close()
             print('Database connection closed.')
 
+@app.command("mark_read")
+def mark_read(book_id: str):
     
+    # Check if database already exists
+    if not database_exists():
+        print("Database is not created yet, run the command \"start\" to make a new database.")
+        return
     
+    user_name = sign_in()
+    
+    [connection, cur] = connect()
+    
+    if book_exists(book_id):
+        user_id = get_user_id(user_name)
+        mark_book_as_read(book_id, user_id)
+        typer.secho(f'Book {book_id} has been marked as read.')
+    else:
+        typer.secho(f'Book {book_id} does not exist. Make sure you are providing the correct book_id.')
+    
+    cur.close()
+    connection.close()
+    
+@app.command("fav_book")
+def fav_book(book_id: str):
+    
+    # Check if database already exists
+    if not database_exists():
+        print("Database is not created yet, run the command \"start\" to make a new database.")
+        return
+    
+    user_name = sign_in()
+    
+    [connection, cur] = connect()
+    
+    if book_exists(book_id):
+        user_id = get_user_id(user_name)
+        mark_book_as_fav(book_id, user_id)
+        typer.secho(f'Book {book_id} has been marked as favorite.')
+    else:
+        typer.secho(f'Book {book_id} does not exist. Make sure you are providing the correct book_id.')
+    
+    cur.close()
+    connection.close()
+
+
+
 if __name__ == "__main__":
     app()
