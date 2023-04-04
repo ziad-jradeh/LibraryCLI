@@ -368,6 +368,50 @@ def return_book(book_id:int):
             connection.close()
             print('Database connection closed.')
     
+
+@app.command("mark_read")
+def mark_read(book_id: str):
     
+    # Check if database already exists
+    if not database_exists():
+        print("Database is not created yet, run the command \"start\" to make a new database.")
+        return
+    
+    user_name = sign_in()
+    
+    [connection, cur] = connect()
+    
+    if book_exists(book_id):
+        user_id = get_user_id(user_name)
+        mark_book_as_read(book_id, user_id)
+        typer.secho(f'Book {book_id} has been marked as read.')
+    else:
+        typer.secho(f'Book {book_id} does not exist. Make sure you are providing the correct book_id.')
+    
+    cur.close()
+    connection.close()
+    
+@app.command("fav_book")
+def fav_book(book_id: str):
+    
+    # Check if database already exists
+    if not database_exists():
+        print("Database is not created yet, run the command \"start\" to make a new database.")
+        return
+    
+    user_name = sign_in()
+    
+    [connection, cur] = connect()
+    
+    if book_exists(book_id):
+        user_id = get_user_id(user_name)
+        mark_book_as_fav(book_id, user_id)
+        typer.secho(f'Book {book_id} has been marked as favorite.')
+    else:
+        typer.secho(f'Book {book_id} does not exist. Make sure you are providing the correct book_id.')
+    
+    cur.close()
+    connection.close()
+
 if __name__ == "__main__":
     app()
