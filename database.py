@@ -355,3 +355,23 @@ def add_into_return_func(user_id,book_id):
                       values('{date.today()}',{user_id},{book_id})
     
     """)
+
+def mark_book_as_read(book_id, user_id):
+    cur.execute(f'''
+                SELECT book_id FROM read_book WHERE book_id = {book_id} AND user_id = {user_id}
+                ''')
+    already_read = cur.fetchone()
+    if already_read is None:
+        cur.execute(f'''
+                INSERT INTO read_book (book_id, user_id) VALUES ({book_id}, {user_id})
+                ''')
+
+def mark_book_as_fav(book_id, user_id):
+    cur.execute(f'''
+                SELECT book_id FROM favorite WHERE book_id = {book_id} AND user_id = {user_id}
+                ''')
+    already_read = cur.fetchone()
+    if already_read is None:
+        cur.execute(f'''
+                INSERT INTO favorite (book_id, user_id) VALUES ({book_id}, {user_id})
+                ''')
