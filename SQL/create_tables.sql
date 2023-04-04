@@ -3,6 +3,7 @@ CREATE TABLE public.books (
 	"book_title" varchar(255) NOT NULL,
 	"total_pages" integer,
 	"number_copy" integer NOT NULL,
+	"available_copy" integer NOT NULL,
 	"genre_id" integer NOT NULL,
 	"author_id" integer NOT NULL,
 	CONSTRAINT "books_pk" PRIMARY KEY ("book_id")
