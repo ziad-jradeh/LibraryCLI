@@ -286,3 +286,60 @@ def most_read_authors_func():
                 ''')
     return cur.fetchall()
 
+def my_read_books(user_name):
+    '''count read books for ststistic table'''
+
+    cur.execute(f'''SELECT COUNT(*) FROM read_book as rb
+                LEFT JOIN "user" as u ON rb.user_id = u.user_id
+                WHERE user_name = '{user_name}'
+                ''')
+    Value1 = cur.fetchone()
+    if Value1 is None:
+        return None
+    else:
+        return Value1[0]
+    
+def my_read_authors(user_name):
+    '''count read authors for ststistic table'''
+
+    cur.execute(f'''SELECT COUNT(DISTINCT b.author_id) FROM books as b
+                RIGHT JOIN read_book as rb ON rb.book_id = b.book_id
+                RIGHT JOIN "user" as u ON rb.user_id = u.user_id
+                WHERE u.user_name = '{user_name}'
+                ''')
+    Value2 = cur.fetchone()
+    if Value2 is None:
+        return None
+    else:
+        return Value2[0]
+    
+    
+def my_read_genres(user_name):
+    '''count read genres for ststistic table'''
+
+    cur.execute(f'''SELECT COUNT(DISTINCT b.genre_id) FROM books as b
+                RIGHT JOIN read_book as rb ON rb.book_id = b.book_id
+                RIGHT JOIN "user" as u ON rb.user_id = u.user_id
+                WHERE u.user_name = '{user_name}'
+                ''')
+    Value4 = cur.fetchone()
+    if Value4 is None:
+        return None
+    else:
+        return Value4[0]
+    
+def my_read_pages(user_name):
+    '''count read pages for ststistic table'''
+
+    cur.execute(f'''SELECT SUM(b.total_pages) FROM books as b
+                RIGHT JOIN read_book as rb ON rb.book_id = b.book_id
+                RIGHT JOIN "user" as u ON rb.user_id = u.user_id
+                WHERE u.user_name = '{user_name}'
+                ''')
+    Value4 = cur.fetchone()
+    if Value4 is None:
+        return None
+    else:
+        return Value4[0]
+
+
