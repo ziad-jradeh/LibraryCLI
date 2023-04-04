@@ -244,8 +244,8 @@ def get_book_id(book_title, author_id):
 
 def add_new_book(book_title, author_id, genre_id, pages):
     cur.execute(f'''
-                INSERT INTO books (book_title, author_id, genre_id, total_pages, number_copy)
-                VALUES ('{book_title}', {author_id}, {genre_id}, {pages}, 1)
+                INSERT INTO books (book_title, author_id, genre_id, total_pages, number_copy,available_copy)
+                VALUES ('{book_title}', {author_id}, {genre_id}, {pages}, 1,1)
                 RETURNING book_id
                 ''')
     return cur.fetchone()[0]
@@ -253,7 +253,7 @@ def add_new_book(book_title, author_id, genre_id, pages):
 def increase_book_copies(book_id):
     cur.execute(f'''
                 UPDATE books
-                SET number_copy = number_copy + 1
+                SET number_copy = number_copy + 1, available_copy = available_copy + 1
                 WHERE book_id = {book_id}
                 RETURNING book_id
                 ''')
@@ -288,10 +288,12 @@ def recently_added_func(genre='%'):
         """)
     
     return cur.fetchmany(5)
-def check_if_borrowed(user_id,book_id):
-    cur.execute(f""" SELECT borrow_id from borrowing  
-               WHERE book_id = {book_id} and user_id ={user_id}
-    
+def check_if_borrowed_before(user_id,book_id):
+    cur.execute(f""" SELECT borrow_id from borrowing
+          where (SELECT COUNT(*) FROM borrowing WHERE book_id = {book_id} and user_id ={user_id}) 
+                                    > (SELECT COUNT(*) FROM returnings WHERE book_id = {book_id} and user_id ={user_id})
+            
+               
     """)
     check =cur.fetchone()
     if check is None:
@@ -299,7 +301,7 @@ def check_if_borrowed(user_id,book_id):
     else:
      return check[0]
 def borrow_book_func(book_id):
-    cur.execute(f""" SELECT number_copy from books  
+    cur.execute(f""" SELECT available_copy from books  
                WHERE book_id = {book_id}
     
     """)
@@ -313,32 +315,23 @@ def add_into_borrow_func(user_id,book_id):
                       values('{date.today()}',{user_id},{book_id})
     
     """)
-def decrease_book_copies(book_id):
+def decrease_available_copy(book_id):
     cur.execute(f'''
                 UPDATE books
-                SET number_copy = number_copy - 1
+                SET available_copy = available_copy - 1
                 WHERE book_id = {book_id}
                 RETURNING book_id
                 ''')
-def return_book_func(user_id,book_id):
-    cur.execute(f""" SELECT borrow_id from borrowing 
-               WHERE book_id = {book_id} and user_id = {user_id}
-    
-    """)
-    id=cur.fetchone()
-    if id is None:
-        return None
-    else:
-     return id[0] 
+def increase_available_copy(book_id):
+    cur.execute(f'''
+                UPDATE books
+                SET available_copy = available_copy + 1
+                WHERE book_id = {book_id}
+                RETURNING book_id
+                ''')
+
 def add_into_return_func(user_id,book_id):
        cur.execute(f""" insert into returnings( return_date,user_id,book_id) 
                       values('{date.today()}',{user_id},{book_id})
     
     """)
-def delete_from_borrowing(user_id,book_id):
-    cur.execute(f'''
-                DELETE FROM borrowing WHERE user_id ={user_id} and book_id ={book_id}
-                ''')
-    
-
-

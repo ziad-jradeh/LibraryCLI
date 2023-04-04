@@ -1,4 +1,4 @@
-from tkinter import E
+
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -265,7 +265,7 @@ def recently_added(genre:Optional[str] = typer.Argument('%')):
             print('Database connection closed.')
 
 @app.command("borrow_book")
-def borrow_book():
+def borrow_book(book_id:int):
      # Check if database already exists
     if not database_exists():
         print("Database is not created yet, run the command \"start\" to make a new database.")
@@ -277,38 +277,26 @@ def borrow_book():
     # Start a connection to the database
     [connection, cur] = connect()
     user_id = get_user_id(user_name)
-    while True:
-        try:
-            input_id = input('please enter the book_id = ')
-            if input_id == '':
-                typer.secho("Please enter a book_id. Cannot be empty!", fg=typer.colors.RED)
-            
-            book_id = int(input_id)
-        except:
-            typer.secho("Invalid input. Try again", fg=typer.colors.RED)
-            continue
-        finally:
-         #TO DO: check if the user already borrowed the book or not
-         check = check_if_borrowed(user_id,book_id)
-         if check is None:
-            number_copy = borrow_book_func(book_id )
-            if number_copy == 0 or number_copy is None:
-                typer.secho(f"sorry book {book_id} is not available Try again", fg=typer.colors.RED)
-                continue
-            else:
-                add_into_borrow_func(user_id,book_id)
-                decrease_book_copies(book_id)
-                typer.secho(f"you borrowed book {book_id} ", fg=typer.colors.GREEN)
-                break
-         else:
+    
+         #check if the user already borrowed the book or not
+    availabilty = borrow_book_func(book_id )
+    if availabilty == 0 or availabilty is None:
+           typer.secho(f"sorry book {book_id} is not available Try again", fg=typer.colors.RED)
+    else:
+        check = check_if_borrowed_before(user_id,book_id)
+        if check is None:  
+           add_into_borrow_func(user_id,book_id)
+           decrease_available_copy(book_id)
+           typer.secho(f"you borrowed book {book_id} ", fg=typer.colors.GREEN)
+        else:
              typer.secho(f"sorry you have already borrowed book {book_id}. Try another", fg=typer.colors.RED)
-             continue
+            
     if connection is not None:
             cur.close()
             connection.close()
             print('Database connection closed.')
 @app.command("return_book")
-def return_book():
+def return_book(book_id:int):
      # Check if database already exists
     if not database_exists():
         print("Database is not created yet, run the command \"start\" to make a new database.")
@@ -320,27 +308,15 @@ def return_book():
     # Start a connection to the database
     [connection, cur] = connect()
     user_id = get_user_id(user_name)
-    while True:
-        try:
-            input_id = input('please enter the book_id = ')
-            if input_id == '':
-                typer.secho("Please enter a book_id. Cannot be empty!", fg=typer.colors.RED)
+    check = check_if_borrowed_before(user_id,book_id)
+    if check is None:
+        typer.secho(f"sorry you didn't borrow book {book_id} Try another ", fg=typer.colors.RED)
             
-            book_id = int(input_id)
-        except:
-            typer.secho("Invalid input. Try again", fg=typer.colors.RED)
-            continue
-        finally:
-         id= return_book_func(user_id,book_id)
-         if id is None:
-            typer.secho(f"sorry you didn't borrow book {book_id} Try another ", fg=typer.colors.RED)
-            continue
-         else:
-            add_into_return_func(user_id,book_id)
-            increase_book_copies(book_id)
-            delete_from_borrowing(user_id,book_id)
-            typer.secho(f"you returned book {book_id} ", fg=typer.colors.GREEN)
-            break
+    else:
+        add_into_return_func(user_id,book_id)
+        increase_available_copy(book_id)
+        typer.secho(f"you returned book {book_id} ", fg=typer.colors.GREEN)
+            
     if connection is not None:
             cur.close()
             connection.close()
