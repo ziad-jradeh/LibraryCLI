@@ -94,4 +94,18 @@ INSERT INTO public.returnings (return_date, user_id, book_id) VALUES ('2023-01-0
 INSERT INTO public.returnings (return_date, user_id, book_id) VALUES ('2023-01-01', 2, 12);
 
   
+INSERT INTO public.read_book (book_id, user_id) VALUES 
+(1, 1),
+(2, 1),
+(5, 1),
+(6, 3),
+(5, 3),
+(9, 3);
 
+INSERT INTO public.favorite (book_id, user_id) VALUES 
+(1, 3),
+(2, 3),
+(5, 2),
+(6, 2),
+(5, 1),
+(9, 1);

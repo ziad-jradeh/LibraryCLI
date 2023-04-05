@@ -412,6 +412,58 @@ def fav_book(book_id: str):
     
     cur.close()
     connection.close()
+    
+    
+@app.command("my_books")
+def my_books():
+    
+    # Check if database already exists
+    if not database_exists():
+        print("Database is not created yet, run the command \"start\" to make a new database.")
+        return
+    
+    user_name = sign_in()
+    
+    try:
+        [connection, cur] = connect()
+        user_id = get_user_id(user_name)
+        
+        typer.secho("Your read books are:")
+        table = Table(show_header=True, header_style="bold blue")
+        table.add_column("book_id", style="dim", width=10)
+        table.add_column("book_title", style="dim", min_width=10, justify=True)
+        table.add_column("total_pages", style="dim", width=5)
+        table.add_column("genre_name", style="dim", min_width=10, justify=True)
+        table.add_column("author_name", style="dim", min_width=10, justify=True)
+        table.add_column("Availability", style="dim", width=15)
+        
+        
+        read_results = user_read_books(user_id)
+        for row in read_results:
+            table.add_row(*row)
+        console.print(table)
+        
+        typer.secho("\nYour favorite books are:")
+        table2 = Table(show_header=True, header_style="bold blue")
+        table2.add_column("book_id", style="dim", width=10)
+        table2.add_column("book_title", style="dim", min_width=10, justify=True)
+        table2.add_column("total_pages", style="dim", width=5)
+        table2.add_column("genre_name", style="dim", min_width=10, justify=True)
+        table2.add_column("author_name", style="dim", min_width=10, justify=True)
+        table2.add_column("Availability", style="dim", width=15)
+        
+        fav_results = user_fav_books(user_id)
+        for row in fav_results:
+            table2.add_row(*row)
+        console.print(table2)
+        
+    except Exception as error:
+        print(error)      
+    finally: 
+        if connection is not None:
+            cur.close()
+            connection.close()
+        
 
 if __name__ == "__main__":
     app()
