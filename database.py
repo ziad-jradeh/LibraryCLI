@@ -445,3 +445,38 @@ def mark_book_as_fav(book_id, user_id):
                 INSERT INTO favorite (book_id, user_id) VALUES ({book_id}, {user_id})
                 ''')
 
+        
+def user_read_books(user_id):
+    cur.execute(f'''
+                SELECT Cast(book_id As Varchar), book_title, CAST(total_pages as Varchar) , genre_name, author_name,
+                                CASE 
+                                WHEN available_copy > 0 THEN 'True'
+                                ELSE 'False'
+                                END AS Availability
+                FROM books
+                INNER JOIN read_book USING (book_id)
+                INNER JOIN genres USING (genre_id)
+                INNER JOIN authors USING (author_id)
+                WHERE user_id = {user_id}
+                ORDER BY book_id
+                ''')
+    return cur.fetchall()
+
+
+def user_fav_books(user_id):
+    cur.execute(f'''
+                SELECT Cast(book_id As Varchar), book_title, CAST(total_pages as Varchar) , genre_name, author_name,
+                                CASE 
+                                WHEN available_copy > 0 THEN 'True'
+                                ELSE 'False'
+                                END AS Availability
+                FROM books
+                INNER JOIN favorite USING (book_id)
+                INNER JOIN genres USING (genre_id)
+                INNER JOIN authors USING (author_id)
+                WHERE user_id = {user_id}
+                ORDER BY book_id
+                ''')
+    return cur.fetchall()
+
+
