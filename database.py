@@ -244,8 +244,8 @@ def get_book_id(book_title, author_id):
 
 def add_new_book(book_title, author_id, genre_id, pages):
     cur.execute(f'''
-                INSERT INTO books (book_title, author_id, genre_id, total_pages, number_copy)
-                VALUES ('{book_title}', {author_id}, {genre_id}, {pages}, 1)
+                INSERT INTO books (book_title, author_id, genre_id, total_pages, number_copy,available_copy)
+                VALUES ('{book_title}', {author_id}, {genre_id}, {pages}, 1,1)
                 RETURNING book_id
                 ''')
     return cur.fetchone()[0]
@@ -253,7 +253,7 @@ def add_new_book(book_title, author_id, genre_id, pages):
 def increase_book_copies(book_id):
     cur.execute(f'''
                 UPDATE books
-                SET number_copy = number_copy + 1
+                SET number_copy = number_copy + 1,available_copy = available_copy +1
                 WHERE book_id = {book_id}
                 RETURNING book_id
                 ''')
@@ -285,6 +285,97 @@ def most_read_authors_func():
                 ORDER BY COUNT(*) DESC LIMIT 3
                 ''')
     return cur.fetchall()
+def recently_added_func(genre='%'):
+    #how to create as default all genres? 
+         
+    cur.execute(f"""SELECT Cast(br.book_id As Varchar), b.book_title, a.author_name,Cast(b.total_pages As Varchar) , g.genre_name,u.user_name,
+            CASE 
+            WHEN (b.number_copy > ((SELECT COUNT(*) FROM borrowing WHERE book_id=br.book_id) 
+                                    - (SELECT COUNT(*) FROM returnings WHERE book_id=br.book_id))) 
+                THEN 'True'
+
+            ELSE 'False'
+
+            END AS Availability
+            FROM added_book AS br
+            LEFT JOIN books AS b ON br.book_id = b.book_id
+            LEFT JOIN authors AS a ON b.author_id = a.author_id
+            LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+            LEFT JOIN public.user AS u ON br.user_id = u.user_id
+            WHERE g.genre_name LIKE '%{genre}%'
+            GROUP BY br.book_id,b.book_title, a.author_name,b.total_pages, g.genre_name,u.user_name,b.number_copy,br.added_date
+            order by br.added_date desc
+        """)
+    
+    return cur.fetchmany(5)
+def check_if_borrowed_before(user_id,book_id):
+    cur.execute(f""" SELECT borrow_id from borrowing
+          where (SELECT COUNT(*) FROM borrowing WHERE book_id = {book_id} and user_id ={user_id}) 
+                                    > (SELECT COUNT(*) FROM returnings WHERE book_id = {book_id} and user_id ={user_id})
+            
+               
+    """)
+    check =cur.fetchone()
+    if check is None:
+        return None
+    else:
+     return check[0]
+def borrow_book_func(book_id):
+    cur.execute(f""" SELECT available_copy from books  
+               WHERE book_id = {book_id}
+    
+    """)
+    number_copy =cur.fetchone()
+    if number_copy is None:
+        return None
+    else:
+     return number_copy[0]
+def add_into_borrow_func(user_id,book_id):
+     cur.execute(f""" insert into borrowing( borrow_date,user_id,book_id) 
+                      values('{date.today()}',{user_id},{book_id})
+    
+    """)
+def decrease_available_copy(book_id):
+    cur.execute(f'''
+                UPDATE books
+                SET available_copy = available_copy - 1
+                WHERE book_id = {book_id}
+                RETURNING book_id
+                ''')
+def increase_available_copy(book_id):
+    cur.execute(f'''
+                UPDATE books
+                SET available_copy = available_copy + 1
+                WHERE book_id = {book_id}
+                RETURNING book_id
+                ''')
+
+def add_into_return_func(user_id,book_id):
+       cur.execute(f""" insert into returnings( return_date,user_id,book_id) 
+                      values('{date.today()}',{user_id},{book_id})
+    
+    """)
+       
+def book_exists(book_id):
+    cur.execute(f'''
+                SELECT book_id FROM books WHERE book_id = {book_id}
+                ''')
+    id = cur.fetchone()
+    if id is None:
+        return False
+    else:
+        return True
+    
+def mark_book_as_read(book_id, user_id):
+    cur.execute(f'''
+                SELECT book_id FROM read_book WHERE book_id = {book_id} AND user_id = {user_id}
+                ''')
+    already_read = cur.fetchone()
+    if already_read is None:
+        cur.execute(f'''
+                INSERT INTO read_book (book_id, user_id) VALUES ({book_id}, {user_id})
+                ''')
+
 
 def my_read_books(user_name):
     '''count read books for ststistic table'''
@@ -342,4 +433,15 @@ def my_read_pages(user_name):
     else:
         return Value4[0]
 
+
+
+def mark_book_as_fav(book_id, user_id):
+    cur.execute(f'''
+                SELECT book_id FROM favorite WHERE book_id = {book_id} AND user_id = {user_id}
+                ''')
+    already_read = cur.fetchone()
+    if already_read is None:
+        cur.execute(f'''
+                INSERT INTO favorite (book_id, user_id) VALUES ({book_id}, {user_id})
+                ''')
 
