@@ -310,6 +310,40 @@ def recently_added(genre:Optional[str] = typer.Argument('%')):
             connection.close()
             print('Database connection closed.')
 
+@app.command("statistics")
+def statistics():
+
+    ### Check if user is logged in
+    user_name = sign_in()
+    # Start a connection to the database
+    [connection, cur] = connect()
+    try:
+        table = Table(show_header=True, header_style="bold blue")
+        
+        table.add_column("Statistic", style="dim", width=30)
+        table.add_column("Number", style="dim", width=10)
+        
+        Value1 = my_read_books(user_name)
+        Value2 = my_read_authors(user_name)
+        Value3 = my_read_genres(user_name)
+        Value4 = my_read_pages(user_name)
+
+        table.add_row("Books you read", str(Value1))
+        table.add_row("Authors you read", str(Value2))
+        table.add_row("Genres you read", str(Value3))
+        table.add_row("Total pages you read", str(Value4))
+
+        console.print(table)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+           cur.close()
+           connection.close()
+        print('Database connection closed.')
+
+
 @app.command("borrow_book")
 def borrow_book(book_id:int):
      # Check if database already exists
