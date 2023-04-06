@@ -14,6 +14,15 @@ DATABASE_NAME = 'librarycli'
 global connection, cur
 connection, cur = None, None
 
+select_str = '''
+                SELECT Cast(b.book_id As Varchar), b.book_title, a.author_name, CAST(total_pages as Varchar) , g.genre_name, 
+                    CASE 
+                                WHEN available_copy > 0 THEN '✅'
+                                ELSE '❌'
+                    END AS Availability
+            '''
+        
+
 def config(filename=database_path, section='postgresql'):
     # create a parser
     parser = ConfigParser()
@@ -132,54 +141,36 @@ def sign_in_func(user_name, password):
     return check     
     
 def search_by_name_func(name):
-    
-                 
-        cur.execute(f"""SELECT Cast(book_id As Varchar), b.book_title, CAST(total_pages as Varchar) , g.genre_name, a.author_name,
-    CASE 
-    WHEN (b.number_copy > ((SELECT COUNT(*) FROM borrowing WHERE book_id=b.book_id) 
-                            - (SELECT COUNT(*) FROM returnings WHERE book_id=b.book_id))) 
-		  THEN 'True'
-
-    ELSE 'False'
-
-    END AS Availability
-    FROM books b
-    LEFT JOIN genres AS g ON b.genre_id = g.genre_id
-    LEFT JOIN authors AS a ON b.author_id = a.author_id
-    WHERE b.book_title ILIKE '%{name}%'
-        """)
+        cur.execute(select_str + f"""
+                                    FROM books b
+                                    LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+                                    LEFT JOIN authors AS a ON b.author_id = a.author_id
+                                    WHERE b.book_title ILIKE '%{name}%'
+                                    ORDER BY b.book_id
+                                """)
         return cur.fetchall()
 
 def search_by_author_func(name):
-    
-                 
-        cur.execute(f"""SELECT Cast(book_id As Varchar), b.book_title, CAST(total_pages as Varchar) , g.genre_name, a.author_name,
-    CASE 
-    WHEN (b.number_copy > ((SELECT COUNT(*) FROM borrowing WHERE book_id=b.book_id) 
-                            - (SELECT COUNT(*) FROM returnings WHERE book_id=b.book_id))) 
-		  THEN 'True'
-
-    ELSE 'False'
-
-    END AS Availability
-    FROM books b
-    LEFT JOIN genres AS g ON b.genre_id = g.genre_id
-    LEFT JOIN authors AS a ON b.author_id = a.author_id
-    WHERE a.author_name ILIKE '%{name}%'
-        """)
+        cur.execute(select_str + f"""
+                                        FROM books b
+                                        LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+                                        LEFT JOIN authors AS a ON b.author_id = a.author_id
+                                        WHERE a.author_name ILIKE '%{name}%'
+                                        ORDER BY b.book_id
+                                    """)
         return cur.fetchall()
+    
+    
 def most_read_books_func(genre= '%'):
-    #how to create as default all genres? 
-                 
         cur.execute(f"""SELECT Cast(br.book_id As Varchar), b.book_title, a.author_name, g.genre_name, Cast(COUNT(*) As Varchar) 
-FROM borrowing AS br
-LEFT JOIN books AS b ON br.book_id = b.book_id
-LEFT JOIN genres AS g ON b.genre_id = g.genre_id
-LEFT JOIN authors AS a ON b.author_id = a.author_id
-WHERE g.genre_name LIKE '%{genre}%'
-GROUP BY br.book_id,b.book_title, a.author_name, g.genre_name
-ORDER BY COUNT(*) DESC
-        """)
+                        FROM read_book AS br
+                        LEFT JOIN books AS b ON br.book_id = b.book_id
+                        LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+                        LEFT JOIN authors AS a ON b.author_id = a.author_id
+                        WHERE g.genre_name LIKE '%{genre}%'
+                        GROUP BY br.book_id,b.book_title, a.author_name, g.genre_name
+                        ORDER BY COUNT(*) DESC
+                        """)
         return cur.fetchall()
 
 
@@ -276,6 +267,7 @@ def most_read_genres_func():
                 ''')
     return cur.fetchall()
 
+
 def most_read_authors_func():
     cur.execute(f'''SELECT  a.author_name, Cast(COUNT(*) As Varchar) 
                 FROM read_book AS r
@@ -285,41 +277,35 @@ def most_read_authors_func():
                 ORDER BY COUNT(*) DESC LIMIT 3
                 ''')
     return cur.fetchall()
+
+
 def recently_added_func(genre='%'):
-    #how to create as default all genres? 
-         
-    cur.execute(f"""SELECT Cast(br.book_id As Varchar), b.book_title, a.author_name,Cast(b.total_pages As Varchar) , g.genre_name,u.user_name,
-            CASE 
-            WHEN (b.number_copy > ((SELECT COUNT(*) FROM borrowing WHERE book_id=br.book_id) 
-                                    - (SELECT COUNT(*) FROM returnings WHERE book_id=br.book_id))) 
-                THEN 'True'
-
-            ELSE 'False'
-
-            END AS Availability
-            FROM added_book AS br
-            LEFT JOIN books AS b ON br.book_id = b.book_id
-            LEFT JOIN authors AS a ON b.author_id = a.author_id
-            LEFT JOIN genres AS g ON b.genre_id = g.genre_id
-            LEFT JOIN public.user AS u ON br.user_id = u.user_id
-            WHERE g.genre_name LIKE '%{genre}%'
-            GROUP BY br.book_id,b.book_title, a.author_name,b.total_pages, g.genre_name,u.user_name,b.number_copy,br.added_date
-            order by br.added_date desc
-        """)
+    cur.execute(select_str + f"""
+                                FROM added_book AS br
+                                LEFT JOIN books AS b ON br.book_id = b.book_id
+                                LEFT JOIN authors AS a ON b.author_id = a.author_id
+                                LEFT JOIN genres AS g ON b.genre_id = g.genre_id
+                                LEFT JOIN public.user AS u ON br.user_id = u.user_id
+                                WHERE g.genre_name LIKE '%{genre}%'
+                                GROUP BY b.book_id,b.book_title, a.author_name,b.total_pages, g.genre_name,u.user_name,b.number_copy,br.added_date
+                                order by br.added_date desc
+                            """)
     
     return cur.fetchmany(5)
+
+
 def check_if_borrowed_before(user_id,book_id):
     cur.execute(f""" SELECT borrow_id from borrowing
           where (SELECT COUNT(*) FROM borrowing WHERE book_id = {book_id} and user_id ={user_id}) 
                                     > (SELECT COUNT(*) FROM returnings WHERE book_id = {book_id} and user_id ={user_id})
-            
-               
     """)
     check =cur.fetchone()
     if check is None:
         return None
     else:
      return check[0]
+ 
+ 
 def borrow_book_func(book_id):
     cur.execute(f""" SELECT available_copy from books  
                WHERE book_id = {book_id}
@@ -330,11 +316,15 @@ def borrow_book_func(book_id):
         return None
     else:
      return number_copy[0]
+ 
+ 
 def add_into_borrow_func(user_id,book_id):
      cur.execute(f""" insert into borrowing( borrow_date,user_id,book_id) 
                       values('{date.today()}',{user_id},{book_id})
     
     """)
+     
+    
 def decrease_available_copy(book_id):
     cur.execute(f'''
                 UPDATE books
@@ -342,6 +332,8 @@ def decrease_available_copy(book_id):
                 WHERE book_id = {book_id}
                 RETURNING book_id
                 ''')
+    
+    
 def increase_available_copy(book_id):
     cur.execute(f'''
                 UPDATE books
@@ -350,11 +342,12 @@ def increase_available_copy(book_id):
                 RETURNING book_id
                 ''')
 
+
 def add_into_return_func(user_id,book_id):
        cur.execute(f""" insert into returnings( return_date,user_id,book_id) 
                       values('{date.today()}',{user_id},{book_id})
-    
     """)
+       
        
 def book_exists(book_id):
     cur.execute(f'''
@@ -365,6 +358,7 @@ def book_exists(book_id):
         return False
     else:
         return True
+    
     
 def mark_book_as_read(book_id, user_id):
     cur.execute(f'''
@@ -389,6 +383,7 @@ def my_read_books(user_name):
         return None
     else:
         return Value1[0]
+    
     
 def my_read_authors(user_name):
     '''count read authors for ststistic table'''
@@ -419,6 +414,7 @@ def my_read_genres(user_name):
     else:
         return Value4[0]
     
+    
 def my_read_pages(user_name):
     '''count read pages for ststistic table'''
 
@@ -447,36 +443,26 @@ def mark_book_as_fav(book_id, user_id):
 
         
 def user_read_books(user_id):
-    cur.execute(f'''
-                SELECT Cast(book_id As Varchar), book_title, CAST(total_pages as Varchar) , genre_name, author_name,
-                                CASE 
-                                WHEN available_copy > 0 THEN 'True'
-                                ELSE 'False'
-                                END AS Availability
-                FROM books
-                INNER JOIN read_book USING (book_id)
-                INNER JOIN genres USING (genre_id)
-                INNER JOIN authors USING (author_id)
-                WHERE user_id = {user_id}
-                ORDER BY book_id
-                ''')
+    cur.execute(select_str + f'''
+                                FROM books AS b
+                                INNER JOIN read_book USING (book_id)
+                                INNER JOIN genres AS g USING (genre_id)
+                                INNER JOIN authors AS a USING (author_id)
+                                WHERE user_id = {user_id}
+                                ORDER BY book_id
+                                ''')
     return cur.fetchall()
 
 
 def user_fav_books(user_id):
-    cur.execute(f'''
-                SELECT Cast(book_id As Varchar), book_title, CAST(total_pages as Varchar) , genre_name, author_name,
-                                CASE 
-                                WHEN available_copy > 0 THEN 'True'
-                                ELSE 'False'
-                                END AS Availability
-                FROM books
-                INNER JOIN favorite USING (book_id)
-                INNER JOIN genres USING (genre_id)
-                INNER JOIN authors USING (author_id)
-                WHERE user_id = {user_id}
-                ORDER BY book_id
-                ''')
+    cur.execute(select_str + f'''
+                                FROM books AS b
+                                INNER JOIN favorite USING (book_id)
+                                INNER JOIN genres AS g USING (genre_id)
+                                INNER JOIN authors AS a USING (author_id)
+                                WHERE user_id = {user_id}
+                                ORDER BY book_id
+                                ''')
     return cur.fetchall()
 
 
