@@ -20,7 +20,6 @@ python3 main.py start
 ## Usage and Commands:
 ```bash
  Usage: main.py [OPTIONS] COMMAND [ARGS]...
- Usage: main.py [OPTIONS] COMMAND [ARGS]...
 
 ╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────╮
 │ --install-completion          Install completion for the current shell.                           │
