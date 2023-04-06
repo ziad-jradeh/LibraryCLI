@@ -1,0 +1,3 @@
+typer
+psycopg2
+rich
