@@ -192,7 +192,7 @@ def most_read_books_func(genre= '%'):
 
 
 def get_user_id(user_name):
-    cur.execute(f'''t
+    cur.execute(f'''
                     SELECT user_id FROM public.user
                     WHERE user_name = '{user_name}'
                 ''')
