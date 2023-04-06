@@ -152,7 +152,21 @@ def most_read_books(genre:Optional[str] = typer.Argument('%')):
 ########################################
 ### TODO: ADD MOST_FAVORITE_BOOKS
 ########################################
+@app.command("most_favorite_books")
+def most_favorite_books(genre:Optional[str] = typer.Argument('%')):
+   
+    [connection, cur] = connect()
+    try:
+        rows = most_favorite_books_func(genre)
+        print_table(["#", 'Book ID', 'Title', 'Author', 'Genre', 'Count'], f'Most favorite books:', rows)
 
+    except (Exception, psycopg2.DatabaseError) as error:
+         print(error)      
+    finally: 
+        if connection is not None:
+           cur.close()
+           connection.close()
+        print('Database connection closed.')
 
 @app.command("most_read_genres")
 def most_read_genres():
