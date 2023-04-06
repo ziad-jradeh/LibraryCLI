@@ -4,7 +4,7 @@
 
 This application is a command-line interface to manage a local library. Where users can search for books, add books, view their read and favorite books, and borrow books.
 
-## Installation and usage:
+## Installation:
 
 1. Install python.
 
@@ -20,31 +20,33 @@ python3 main.py start
 ## Usage and Commands:
 ```bash
  Usage: main.py [OPTIONS] COMMAND [ARGS]...
+ Usage: main.py [OPTIONS] COMMAND [ARGS]...
 
-╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --install-completion          Install completion for the current shell.                                                                                       │
-│ --show-completion             Show completion for the current shell, to copy it or customize the installation.                                                │
-│ --help                        Show this message and exit.                                                                                                     │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ add_book                                                                                                                                                      │
-│ borrow_book                                                                                                                                                   │
-│ del_database                        Delete the current database. User start after to create a new one.                                                        │
-│ fav_book                                                                                                                                                      │
-│ mark_read                                                                                                                                                     │
-│ most_favorite_books                                                                                                                                           │
-│ most_read_authors                                                                                                                                             │
-│ most_read_books                                                                                                                                               │
-│ most_read_genres                                                                                                                                              │
-│ my_books                                                                                                                                                      │
-│ recently_added                                                                                                                                                │
-│ return_book                                                                                                                                                   │
-│ search_by_author                                                                                                                                              │
-│ search_by_name                                                                                                                                                │
-│ sign_up                                                                                                                                                       │
-│ start                               Check if the database is available, and if not create a new database.                                                     │
-│ statistics                                                                                                                                                    │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current shell.                           │
+│ --show-completion             Show completion for the current shell, to copy it or customize the  │
+│                               installation.                                                       │
+│ --help                        Show this message and exit.                                         │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ────────────────────────────────────────────────────────────────────────────────────────╮
+│ add_book                                                                                          │
+│ borrow_book                                                                                       │
+│ del_database           Delete the current database. User start after to create a new one.         │
+│ fav_book                                                                                          │
+│ mark_read                                                                                         │
+│ most_favorite_books                                                                               │
+│ most_read_authors                                                                                 │
+│ most_read_books                                                                                   │
+│ most_read_genres                                                                                  │
+│ my_books                                                                                          │
+│ recently_added                                                                                    │
+│ return_book                                                                                       │
+│ search_by_author                                                                                  │
+│ search_by_name                                                                                    │
+│ sign_up                                                                                           │
+│ start                  Check if the database is available, and if not create a new database.      │
+│ statistics                                                                                        │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Screenshots:
