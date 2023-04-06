@@ -46,7 +46,6 @@ def connect(database = DATABASE_NAME):
     
     Returns the database connection object and the database cursor object."""
     global connection, cur
-    
     try:
         # read connection parameters
         params = config()
@@ -55,14 +54,14 @@ def connect(database = DATABASE_NAME):
         # connect to the PostgreSQL server
         connection = psycopg2.connect(**params)
         connection.autocommit = True
-  
         # create a cursor
         cur = connection.cursor()
-        
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
+        # return the connection and cursor objects
         return [connection, cur]
+    
     
 def drop_database():
     '''A function to drop/delete the database. Returns True if successful, False otherwise.'''
@@ -78,6 +77,7 @@ def drop_database():
         print(e)
         return False
     
+    
 def database_exists():
     '''A function that returns True if the database exists and False otherwise.'''
     try:
@@ -86,7 +86,6 @@ def database_exists():
         # Check if the database exists
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         c.execute(f"SELECT datname FROM pg_database;")
-
         db_list = c.fetchall()
         c.close()
         conn.close()
@@ -119,10 +118,11 @@ def create_database():
         prompt = input("An empty database has been created. Would you like to load sample database? [y/n]: ")
         if prompt.lower() == "y":
             cur.execute(open("SQL/insert_sample_db.sql", "r").read())
-        connection.commit()
         cur.close()
         connection.close()
         return "Database created successfully."
+    
+    
 def sign_up_func(user_name, password):
     checking_query = f""" select user_name from public.user where user_name = '{user_name}'"""
     cur.execute(checking_query)
@@ -133,13 +133,16 @@ def sign_up_func(user_name, password):
          postgres_insert_query = f""" INSERT INTO public.user (user_name,user_password)  VALUES ('{user_name}','{password}')"""
          cur.execute(postgres_insert_query)
          cur.close()
-    return check     
+    return check
+
+
 def sign_in_func(user_name, password):
     checking_query = f""" select user_name from public.user where user_name = '{user_name}'and user_password ='{password}'"""
     cur.execute(checking_query)
     check = cur.fetchone()
     return check     
-    
+
+
 def search_by_name_func(name):
         cur.execute(select_str + f"""
                                     FROM books b
@@ -150,6 +153,7 @@ def search_by_name_func(name):
                                 """)
         return cur.fetchall()
 
+
 def search_by_author_func(name):
         cur.execute(select_str + f"""
                                         FROM books b
@@ -159,7 +163,8 @@ def search_by_author_func(name):
                                         ORDER BY b.book_id
                                     """)
         return cur.fetchall()
-    
+
+
 def most_favorite_books_func(genre ='%'):
      cur.execute(f"""SELECT Cast(fr.book_id As Varchar), b.book_title, a.author_name, g.genre_name, Cast(COUNT(*) As Varchar) 
                 FROM favorite AS fr
@@ -170,7 +175,9 @@ def most_favorite_books_func(genre ='%'):
                 GROUP BY fr.book_id,b.book_title, a.author_name, g.genre_name
                 ORDER BY COUNT(*) DESC
                         """)
-     return cur.fetchall()   
+     return cur.fetchall()
+ 
+ 
 def most_read_books_func(genre= '%'):
         cur.execute(f"""SELECT Cast(br.book_id As Varchar), b.book_title, a.author_name, g.genre_name, Cast(COUNT(*) As Varchar) 
                         FROM read_book AS br
@@ -185,7 +192,7 @@ def most_read_books_func(genre= '%'):
 
 
 def get_user_id(user_name):
-    cur.execute(f'''
+    cur.execute(f'''t
                     SELECT user_id FROM public.user
                     WHERE user_name = '{user_name}'
                 ''')
@@ -196,13 +203,14 @@ def get_user_id(user_name):
 def get_author_id(author_name):
     cur.execute(f'''
                     SELECT author_id FROM authors
-                    WHERE author_name = '{author_name}'
+                    WHERE LOWER(author_name) = '{author_name.lower()}'
                 ''')
     id = cur.fetchone()
     if id is None:
         return None
     else:
         return id[0]
+
 
 def add_author(author_name):
     cur.execute(f'''
@@ -212,17 +220,18 @@ def add_author(author_name):
                 ''')
     return cur.fetchone()[0]
 
+
 def get_genre_id(genre_name):
-    
     cur.execute(f'''
                     SELECT genre_id FROM genres
-                    WHERE genre_name = '{genre_name}'
+                    WHERE LOWER(genre_name) = '{genre_name.lower()}'
                 ''')
     id = cur.fetchone()
     if id is None:
         return None
     else:
         return id[0]
+
 
 def add_genre(genre_name):
     cur.execute(f'''
@@ -232,16 +241,18 @@ def add_genre(genre_name):
                 ''')
     return cur.fetchone()[0]
 
+
 def get_book_id(book_title, author_id):
     cur.execute(f'''
                     SELECT book_id FROM books
-                    WHERE book_title = '{book_title}' AND author_id = '{author_id}'
+                    WHERE LOWER(book_title) = '{book_title.lower()}' AND author_id = '{author_id}'
                 ''')
     id = cur.fetchone()
     if id is None:
         return None
     else:
         return id[0]
+
 
 def add_new_book(book_title, author_id, genre_id, pages):
     cur.execute(f'''
@@ -254,7 +265,7 @@ def add_new_book(book_title, author_id, genre_id, pages):
 def increase_book_copies(book_id):
     cur.execute(f'''
                 UPDATE books
-                SET number_copy = number_copy + 1,available_copy = available_copy +1
+                SET number_copy = number_copy + 1, available_copy = available_copy +1
                 WHERE book_id = {book_id}
                 RETURNING book_id
                 ''')
@@ -300,7 +311,6 @@ def recently_added_func(genre='%'):
                                 GROUP BY b.book_id,b.book_title, a.author_name,b.total_pages, g.genre_name,u.user_name,b.number_copy,br.added_date
                                 order by br.added_date desc
                             """)
-    
     return cur.fetchmany(5)
 
 
@@ -440,7 +450,6 @@ def my_read_pages(user_name):
         return Value4[0]
 
 
-
 def mark_book_as_fav(book_id, user_id):
     cur.execute(f'''
                 SELECT book_id FROM favorite WHERE book_id = {book_id} AND user_id = {user_id}
@@ -474,5 +483,4 @@ def user_fav_books(user_id):
                                 ORDER BY book_id
                                 ''')
     return cur.fetchall()
-
 
