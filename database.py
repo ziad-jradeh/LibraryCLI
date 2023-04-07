@@ -184,7 +184,7 @@ def most_read_books_func(genre= '%'):
                         LEFT JOIN books AS b ON br.book_id = b.book_id
                         LEFT JOIN genres AS g ON b.genre_id = g.genre_id
                         LEFT JOIN authors AS a ON b.author_id = a.author_id
-                        WHERE g.genre_name LIKE '%{genre}%'
+                        WHERE g.genre_name ILIKE '{genre}'
                         GROUP BY br.book_id,b.book_title, a.author_name, g.genre_name
                         ORDER BY COUNT(*) DESC
                         """)
