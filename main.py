@@ -55,7 +55,7 @@ def sign_in():
 
 @app.command("sign_up")
 def sign_up(username: str, password:str):
-    # TODO: Add user with name {username} and {password} to database table
+    '''Registers a new user with username and password. if the username is occupied, it notifys and provide the user for another input.  '''
     [connection, cur] = connect()
     check = not None
     while check:
@@ -90,6 +90,7 @@ def del_database(none: Optional[str] = typer.Argument(None)):
 
 @app.command("search_by_name")
 def search_by_name(name:str):
+    '''search a book by its title and displays it with its detail information. '''
     [connection, cur] = connect()
     try:
         rows = search_by_name_func(name)
@@ -104,7 +105,7 @@ def search_by_name(name:str):
 
 @app.command("search_by_author")
 def search_by_author(name:str):
-   
+    '''search a book by the author name and displays it with its detail information. '''
     [connection, cur] = connect()
     try:
         rows = search_by_author_func(name)
@@ -119,7 +120,7 @@ def search_by_author(name:str):
 
 @app.command("recently_added")
 def recently_added(genre:Optional[str] = typer.Argument('%')):
-   
+    '''displays all the books in the library with the most recent on the top.'''
     [connection, cur] = connect()
     try:
         #this string just for test
@@ -135,7 +136,7 @@ def recently_added(genre:Optional[str] = typer.Argument('%')):
 
 @app.command("most_read_books")
 def most_read_books(genre:Optional[str] = typer.Argument('%')):
-   
+    ''' it displays the most read books by users of the library.'''
     [connection, cur] = connect()
     try:
         #this string just for test
@@ -148,13 +149,9 @@ def most_read_books(genre:Optional[str] = typer.Argument('%')):
            cur.close()
            connection.close()
 
-
-########################################
-### TODO: ADD MOST_FAVORITE_BOOKS
-########################################
 @app.command("most_favorite_books")
 def most_favorite_books(genre:Optional[str] = typer.Argument('%')):
-   
+    '''it displays the most favored books by the users of the library.'''
     [connection, cur] = connect()
     try:
         rows = most_favorite_books_func(genre)
@@ -170,7 +167,7 @@ def most_favorite_books(genre:Optional[str] = typer.Argument('%')):
 
 @app.command("most_read_genres")
 def most_read_genres():
-   
+    '''it displays the most read genres and their number.'''
     [connection, cur] = connect()
     try:
         rows = most_read_genres_func()
@@ -185,7 +182,7 @@ def most_read_genres():
 
 @app.command("most_read_authors")
 def most_read_authors():
-   
+    '''it displays the most read authors and their number.'''
     [connection, cur] = connect()
     try:
         rows = most_read_authors_func()
@@ -200,7 +197,7 @@ def most_read_authors():
 
 @app.command("add_book")
 def add_book():
-    
+    ''' it provides the user to add any book to the library.But the user has to signed in first.'''
     # Check if database already exists
     if not database_exists():
         print("Database is not created yet, run the command \"start\" to make a new database.")
@@ -266,6 +263,7 @@ def add_book():
 
 @app.command("borrow_book")
 def borrow_book(book_id:int):
+    ''' it provides the user to borrow any book from the library.But the user has to signed in first.'''
      # Check if database already exists
     if not database_exists():
         print("Database is not created yet, run the command \"start\" to make a new database.")
@@ -296,6 +294,7 @@ def borrow_book(book_id:int):
 
 @app.command("return_book")
 def return_book(book_id:int):
+    ''' it provides the user to return the book he/she borrowed.But the user has to signed in first.'''
      # Check if database already exists
     if not database_exists():
         print("Database is not created yet, run the command \"start\" to make a new database.")
@@ -320,7 +319,7 @@ def return_book(book_id:int):
 
 @app.command("mark_read")
 def mark_read(book_id: str):
-    
+    ''' it enables the user to mark any book as read.But the user has to signed in first.'''
     # Check if database already exists
     if not database_exists():
         print("Database is not created yet, run the command \"start\" to make a new database.")
@@ -343,7 +342,7 @@ def mark_read(book_id: str):
 
 @app.command("fav_book")
 def fav_book(book_id: str):
-    
+    ''' it enables the user to mark any book as favorite.But the user has to signed in first.'''
     # Check if database already exists
     if not database_exists():
         print("Database is not created yet, run the command \"start\" to make a new database.")
@@ -366,7 +365,7 @@ def fav_book(book_id: str):
     
 @app.command("my_books")
 def my_books():
-    
+    ''' it displays all the books of a user in a two table, read and favorite.But the user has to signed in first.'''
     # Check if database already exists
     if not database_exists():
         print("Database is not created yet, run the command \"start\" to make a new database.")
@@ -394,7 +393,7 @@ def my_books():
 
 @app.command("statistics")
 def statistics():
-
+    ''' it displays summary of all the books the user read in terms of number of books, authors,genres and pages.But the user has to signed in first.'''
     ### Check if user is logged in
     user_name = sign_in()
     # Start a connection to the database
