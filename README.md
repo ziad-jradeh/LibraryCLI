@@ -91,6 +91,9 @@ python3 main.py statistics
 ```
 ![statistics](screenshots/statistics.png)
 
+## Entity-relationship diagram (ERD):
+![ERD](screenshots/ERD.png)
+
 
 ## Collaborators/team members:
 
